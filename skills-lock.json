@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "skills": {
+    "accessibility-expert": {
+      "source": "slb2248/ai-ux-skills",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "skills/accessibility-expert/SKILL.md",
+      "computedHash": "faa8b2c309169fecdc72754b5fbc43fb6ed217f387feb513301006a2d93a6ba8"
+    },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "93f53fd1c0352d3d7ec17b8f73d7351bf76f4821e55d123c9d2abc2c53ba48e4"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "computedHash": "ca7b0c0c6e5f2750043f7f0cd72d16ac4e2abc48f9b5500d047a4b77a2506212"
+    },
+    "webapp-testing": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/webapp-testing/SKILL.md",
+      "computedHash": "3f14af7f5690695209c22fbf8c8d133769a86d64892602c09bb13f135e14e857"
+    }
+  }
+}

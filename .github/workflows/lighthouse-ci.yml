@@ -1,0 +1,103 @@
+name: Lighthouse CI
+
+# Regression gate para SEO/performance/acessibilidade (Fase 6, docs/plano-template.md).
+# Builda o app em modo produção (client + SSR + server compilado), sobe contra um
+# Postgres efêmero com dados de seed e audita as páginas públicas com o Lighthouse.
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "client/**"
+      - "server/**"
+      - "server.js"
+      - "package.json"
+      - "lighthouserc.json"
+      - ".github/workflows/lighthouse-ci.yml"
+  workflow_dispatch: {}
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: web_cms_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      NODE_ENV: production
+      PORT: "4000"
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/web_cms_ci
+      JWT_SECRET: lighthouse-ci-only-secret-not-for-prod
+      SUPABASE_URL: https://ci-placeholder.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-key
+      SUPABASE_STORAGE_BUCKET: site-media
+      ADMIN_EMAIL: admin@ci.example.com
+      ADMIN_PASSWORD: LighthouseCI123!
+      CLIENT_URL: http://localhost:4000
+      SITE_URL: http://localhost:4000
+      AI_TRAINING_ALLOWED: "false"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            client/package-lock.json
+            server/package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install server dependencies
+        run: npm ci --prefix server
+
+      - name: Install client dependencies
+        run: npm ci --prefix client
+
+      - name: Apply database migrations
+        run: npx prisma migrate deploy --schema server/prisma/schema.prisma
+
+      - name: Seed database
+        run: npm run prisma:seed --prefix server
+
+      - name: Build client (Vite + SSR)
+        run: npm run build --prefix client
+
+      - name: Build server
+        run: npm run build --prefix server
+
+      - name: Start production server
+        run: |
+          node server.js > server.log 2>&1 &
+          echo $! > server.pid
+          npx --yes wait-on@9.1.0 -t 60000 http://localhost:4000/api/health
+
+      - name: Run Lighthouse CI
+        run: npx --yes @lhci/cli@0.15.1 autorun --config=lighthouserc.json
+
+      - name: Show server log on failure
+        if: failure()
+        run: cat server.log || true
+
+      - name: Stop production server
+        if: always()
+        run: kill "$(cat server.pid)" 2>/dev/null || true

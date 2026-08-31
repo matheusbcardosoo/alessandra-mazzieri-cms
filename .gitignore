@@ -1,0 +1,85 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build outputs
+dist/
+server/dist/
+client/dist/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+server/.env
+server/.env.local
+client/.env
+client/.env.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Uploads
+server/uploads/
+uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Deploy
+deploy.zip
+deploy-temp/
+
+# Cache
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist/
+
+# Optional npm cache directory
+.npm/
+
+# Optional REPL history
+.node_repl_history
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Auto-installation flag (Hostinger)
+.installed
+
+# IA (configs locais de agentes de código, não fazem parte do template)
+*.ia
+.agents/
+.claude/
+.codex/
+.superpowers/
+.playwright-cli/
+client/.impeccable
+
+# Material de referência visual para a IA (staging, não faz parte do template)
+reference/*
+!reference/README.md
+

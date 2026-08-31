@@ -1,0 +1,52 @@
+{
+  "name": "web-cms-template",
+  "version": "1.0.0",
+  "description": "Template Node.js de site institucional com CMS próprio baseado em blocos (React + Express + Prisma)",
+  "main": "server.js",
+  "scripts": {
+    "docker:up": "docker compose up -d || echo Docker indisponivel - seguindo sem Redis (cache em memoria fica desabilitado)",
+    "docker:down": "docker compose down",
+    "predev": "npm run docker:up",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm ci --include=dev --prefix client && npm run build --prefix client && npm ci --include=dev --prefix server && npm run prisma:generate --prefix server && npm run build --prefix server",
+    "prestart": "npm run docker:up",
+    "start": "node server.js",
+    "postinstall": "node postinstall.js",
+    "typecheck": "npm run typecheck --prefix client && npm run typecheck --prefix server",
+    "lint": "npm run lint --prefix client && npm run lint --prefix server",
+    "test": "npm test --prefix client && npm test --prefix server",
+    "generate:help-screenshots": "tsx scripts/generate-help-screenshots.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "@supabase/supabase-js": "^2.48.0",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.4.1",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.2",
+    "prisma": "^6.1.0",
+    "sanitize-html": "^2.13.1",
+    "sharp": "^0.34.5",
+    "uuid": "^13.0.0",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "playwright": "^1.49.0",
+    "tsx": "^4.19.2"
+  }
+}

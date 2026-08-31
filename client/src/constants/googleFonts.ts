@@ -1,0 +1,32 @@
+export const GOOGLE_FONTS_HEADINGS = [
+  { name: 'Playfair Display', category: 'Serif', preview: 'Aa' },
+  { name: 'Cormorant Garamond', category: 'Serif', preview: 'Aa' },
+  { name: 'Merriweather', category: 'Serif', preview: 'Aa' },
+  { name: 'Lora', category: 'Serif', preview: 'Aa' },
+  { name: 'EB Garamond', category: 'Serif', preview: 'Aa' },
+  { name: 'Libre Baskerville', category: 'Serif', preview: 'Aa' },
+  { name: 'DM Serif Display', category: 'Serif', preview: 'Aa' },
+  { name: 'Spectral', category: 'Serif', preview: 'Aa' },
+  { name: 'Crimson Text', category: 'Serif', preview: 'Aa' },
+  { name: 'Cinzel', category: 'Serif', preview: 'Aa' },
+  { name: 'Raleway', category: 'Sans-Serif', preview: 'Aa' },
+  { name: 'Josefin Sans', category: 'Sans-Serif', preview: 'Aa' },
+  { name: 'Montserrat', category: 'Sans-Serif', preview: 'Aa' },
+] as const;
+
+export const GOOGLE_FONTS_BODY = [
+  { name: 'Inter', category: 'Sans-Serif' },
+  { name: 'DM Sans', category: 'Sans-Serif' },
+  { name: 'Nunito', category: 'Sans-Serif' },
+  { name: 'Open Sans', category: 'Sans-Serif' },
+  { name: 'Lato', category: 'Sans-Serif' },
+  { name: 'Raleway', category: 'Sans-Serif' },
+  { name: 'Source Sans 3', category: 'Sans-Serif' },
+  { name: 'Jost', category: 'Sans-Serif' },
+  { name: 'Outfit', category: 'Sans-Serif' },
+  { name: 'Karla', category: 'Sans-Serif' },
+  { name: 'Mulish', category: 'Sans-Serif' },
+  { name: 'Work Sans', category: 'Sans-Serif' },
+  { name: 'Lora', category: 'Serif' },
+  { name: 'Merriweather', category: 'Serif' },
+] as const;

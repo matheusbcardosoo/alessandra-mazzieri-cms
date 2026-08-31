@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PostStatus {
+  draft
+  published
+}
+
+enum PageStatus {
+  draft
+  published
+}
+
+enum NavItemType {
+  INTERNAL_PAGE
+  EXTERNAL_URL
+}
+
+enum UserRole {
+  admin
+  owner
+  editor
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  name          String
+  role          UserRole @default(admin) // default exists only for Prisma's migration
+                                          // backfill of the one pre-existing seeded row;
+                                          // every application-level create always passes
+                                          // role explicitly (Zod-required, see Task 5)
+  sectionAccess Json     @default("{}")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  pageAccess    UserPageAccess[]
+}
+
+model NavItem {
+  id         String   @id @default(uuid())
+  label      String
+  type       NavItemType
+  pageKey    String?
+  url        String?
+  showInNavbar Boolean @default(false)
+  showInFooter Boolean @default(false)
+  isParent   Boolean  @default(false)
+  parentId   String?
+  orderNavbar Int      @default(0)
+  orderFooter Int?
+  isVisible  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  parent     NavItem? @relation("NavItemHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children   NavItem[] @relation("NavItemHierarchy")
+
+  @@index([showInNavbar, orderNavbar])
+  @@index([showInFooter, orderFooter])
+  @@index([parentId])
+  @@unique([parentId, orderNavbar])
+  @@unique([parentId, orderFooter])
+}
+
+model HomeSection {
+  id        String   @id @default(uuid())
+  type      String
+  title     String?
+  data      Json
+  order     Int      @default(0)
+  visible   Boolean  @default(true)
+  isLocked  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+  @@index([visible])
+}
+
+model Page {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  pageKey     String?  @unique
+  title       String
+  description String?
+  layout      Json
+  status      PageStatus @default(draft)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  submissions FormSubmission[]
+  pageAccess  UserPageAccess[]
+  versions    PageVersion[]
+}
+
+// Histórico das últimas N versões publicadas de uma página (N configurável
+// via PAGE_VERSION_HISTORY_LIMIT), para permitir reverter uma publicação
+// anterior. actorName/actorEmail são um snapshot (mesmo padrão do AuditLog)
+// para sobreviver à remoção do usuário autor.
+model PageVersion {
+  id          String   @id @default(uuid())
+  pageId      String
+  title       String
+  description String?
+  layout      Json
+  publishedAt DateTime @default(now())
+  actorId     String?
+  actorName   String
+  actorEmail  String
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, publishedAt])
+}
+
+model UserPageAccess {
+  id        String   @id @default(uuid())
+  userId    String
+  pageId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pageId])
+}
+
+model Media {
+  id          String   @id @default(uuid())
+  path        String
+  url         String
+  bucket      String
+  mimeType    String
+  size        Int
+  avifUrl     String?
+  avifPath    String?
+  avifSize    Int?
+  width       Int?
+  height      Int?
+  alt         String?
+  title       String?
+  description String?
+  tags        String[] @default([])
+  // Crop data fields
+  cropX       Float?
+  cropY       Float?
+  cropWidth   Float?
+  cropHeight  Float?
+  cropRatio   String?  // "16:9", "1:1", "4:3", "free"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  posts       Post[]   @relation("PostCoverMedia")
+}
+
+model Post {
+  id           String     @id @default(uuid())
+  title        String
+  slug         String     @unique
+  excerpt      String
+  content      String
+  coverMediaId String?
+  coverMedia   Media?     @relation("PostCoverMedia", fields: [coverMediaId], references: [id])
+  status       PostStatus @default(draft)
+  tags         String[]   @default([])
+  isFeatured   Boolean    @default(false)
+  views        Int        @default(0)
+  publishedAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([status])
+  @@index([publishedAt])
+  @@index([isFeatured, status])
+  @@index([status, views])
+  @@index([status, publishedAt])
+}
+
+model SiteSettings {
+  id        String   @id @default("default")
+  siteName  String
+  cnpj      String?
+  professionalRegistration       String?
+  contactEmail String?
+  logoUrl   String?
+  phone     String?
+  socials   Json     @default("[]")
+  whatsappEnabled Boolean @default(false)
+  whatsappLink   String?
+  whatsappMessage String?
+  whatsappPosition String? // "right" | "left"
+  hideScheduleCta Boolean @default(false)
+  brandTagline String? @db.VarChar(80)
+  theme     Json     @default("{}")
+  address   Json?    // { street?, city?, state?, zip? }
+  officeHours Json?   // Array<{ label: string; hours: string }>
+  metaDescription String? @db.VarChar(320)
+  ogImageUrl String?
+  gaId      String?
+  gscVerification String?
+  setupCompletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FormSubmission {
+  id          String   @id @default(uuid())
+  pageId      String
+  formBlockId String
+  data        Json
+  summary     Json?
+  userAgent   String?
+  ip          String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  page        Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+  @@index([formBlockId])
+  @@index([createdAt])
+}
+
+enum AuditAction {
+  create
+  update
+  publish
+  unpublish
+  delete
+  upload
+  reorder
+}
+
+enum AuditEntity {
+  page
+  post
+  user
+  media
+  navItem
+  siteSettings
+  formSubmission
+}
+
+// Log imutável de ações admin (quem/o quê/quando). `actorId`/`entityId` não
+// são FKs de propósito: se o usuário autor ou o registro alvo forem
+// excluídos depois, o log precisa sobreviver — por isso o snapshot de
+// actorName/actorEmail/entityLabel no momento da ação.
+model AuditLog {
+  id          String      @id @default(uuid())
+  actorId     String?
+  actorName   String
+  actorEmail  String
+  action      AuditAction
+  entity      AuditEntity
+  entityId    String?
+  entityLabel String
+  createdAt   DateTime    @default(now())
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@index([actorId])
+}
