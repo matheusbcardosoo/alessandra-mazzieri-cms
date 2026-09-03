@@ -170,6 +170,22 @@ const distMissing =
 if (distMissing) {
   console.log('\n⚠️  Build não encontrado. Tentando build automático (npm run build)...');
   console.log('   Isso pode demorar alguns minutos na primeira execução.\n');
+
+  // "npm run build" faz "npm ci" em client/ e server/, que às vezes falha com
+  // ENOTEMPTY em filesystems overlay (Docker) quando node_modules já existe
+  // de uma tentativa anterior parcial/interrompida. Começar de um node_modules
+  // limpo evita esse erro de forma confiável.
+  for (const dir of ['client', 'server']) {
+    const nodeModulesDir = path.join(__dirname, dir, 'node_modules');
+    if (fs.existsSync(nodeModulesDir)) {
+      try {
+        fs.rmSync(nodeModulesDir, { recursive: true, force: true });
+      } catch (cleanError) {
+        console.warn(`⚠️  Não foi possível limpar ${dir}/node_modules:`, cleanError.message);
+      }
+    }
+  }
+
   try {
     execSync('npm run build', { stdio: 'inherit', cwd: __dirname });
     console.log('\n✅ Build automático concluído!\n');
