@@ -77,6 +77,8 @@ export type SocialLink = {
     | 'telefone'
     | 'custom';
   label?: string | null;
+  /** Subtexto curto exibido abaixo do label no card de duas linhas (ex.: contact-info em modo "icons"). */
+  description?: string | null;
   url: string;
   order: number;
   isVisible: boolean;

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(60,60)">
+    <g id="petal-group">
+      <path d="M0,-6 C14,-20 14,-40 0,-52 C-14,-40 -14,-20 0,-6 Z" fill="#7F2A4D"/>
+      <path d="M0,-8 C10,-20 10,-36 0,-46 C-4,-36 -4,-20 0,-8 Z" fill="#E8C0C9" opacity="0.65"/>
+    </g>
+    <use href="#petal-group" transform="rotate(72)"/>
+    <use href="#petal-group" transform="rotate(144)"/>
+    <use href="#petal-group" transform="rotate(216)"/>
+    <use href="#petal-group" transform="rotate(288)"/>
+    <circle r="9" fill="#647651"/>
+    <circle r="9" fill="none" stroke="#FCF3E7" stroke-width="1.2" opacity="0.6"/>
+  </g>
+</svg>

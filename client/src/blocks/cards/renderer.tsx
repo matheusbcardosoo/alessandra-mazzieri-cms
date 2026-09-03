@@ -1,7 +1,19 @@
 import type { CSSProperties } from 'react';
+import DOMPurify from 'dompurify';
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { Icon, isRegisteredIcon } from '@/components/Icon';
 import type { BlockRendererProps } from '../_shared/types';
 import type { CardBlockData } from './schema';
+
+// Título aceita <em> (só essa tag) pra reproduzir o destaque de cor da
+// referência (ex.: "Você reconhece <em>alguma dessas sensações?</em>") sem
+// abrir o campo pra HTML arbitrário — mesmo padrão de sanitização do
+// RichText, mas sem o wrapper de rich-content que quebraria o <h2>.
+function sanitizeTitle(html: string): string {
+  return typeof window === 'undefined'
+    ? html
+    : DOMPurify.sanitize(html, { ALLOWED_TAGS: ['em'], ALLOWED_ATTR: [] });
+}
 
 // Separa a string de ícone em emojis individuais, respeitando clusters
 // (emojis compostos por ZWJ/modificadores não são quebrados ao meio).
@@ -47,7 +59,9 @@ export function CardsRenderer({ data }: BlockRendererProps<CardBlockData>) {
 
   return (
     <div className="page-public-cards">
-      {data.title && <h2 className="cards-title">{data.title}</h2>}
+      {data.title && (
+        <h2 className="cards-title" dangerouslySetInnerHTML={{ __html: sanitizeTitle(data.title) }} />
+      )}
       {data.subtitle && <p className="cards-subtitle">{data.subtitle}</p>}
       <div className={`cards-grid ${layoutClass} ${variantClass}`.trim()} style={gridStyle}>
         {data.items.map((card) => (
@@ -62,6 +76,8 @@ export function CardsRenderer({ data }: BlockRendererProps<CardBlockData>) {
                     alt={card.iconAlt ?? ''}
                     loading="lazy"
                   />
+                ) : isRegisteredIcon(card.icon) ? (
+                  <Icon name={card.icon as string} className="card-icon-fa" />
                 ) : (
                   <span className="card-icon-emoji" aria-hidden="true">
                     {splitEmojis(card.icon ?? '').map((emoji, index) => (

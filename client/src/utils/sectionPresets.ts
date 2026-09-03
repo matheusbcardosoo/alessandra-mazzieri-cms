@@ -228,6 +228,41 @@ export const sectionPresets: SectionPreset[] = [
     }
   },
   {
+    id: 'faq-1col',
+    name: 'Perguntas Frequentes',
+    description: 'Acordeon de perguntas e respostas',
+    icon: '❓',
+    section: {
+      columns: 1,
+      cols: [
+        {
+          id: uuidv4(),
+          blocks: [
+            {
+              id: uuidv4(),
+              type: 'faq',
+              data: {
+                title: 'Dúvidas frequentes',
+                subtitle: 'Se a sua dúvida não estiver aqui, entre em contato.',
+                items: [
+                  { id: uuidv4(), question: 'Pergunta 1?', answer: 'Resposta da pergunta 1.' },
+                  { id: uuidv4(), question: 'Pergunta 2?', answer: 'Resposta da pergunta 2.' },
+                  { id: uuidv4(), question: 'Pergunta 3?', answer: 'Resposta da pergunta 3.' }
+                ],
+                defaultOpenIndex: 0
+              }
+            }
+          ]
+        }
+      ],
+      settings: {
+        background: 'none',
+        padding: 'normal',
+        maxWidth: 'normal'
+      }
+    }
+  },
+  {
     id: 'content-1col',
     name: 'Conteúdo Longo',
     description: 'Texto corrido para artigos',

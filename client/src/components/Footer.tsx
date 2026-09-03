@@ -9,9 +9,10 @@ import {
   faTiktok,
   faXTwitter
 } from '@fortawesome/free-brands-svg-icons';
-import { faEnvelope, faLink, faPhone, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faLink, faPhone, faGlobe, faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { useQuery } from '@tanstack/react-query';
 import { fetchNavbar } from '../api/queries';
+import { DoveMark } from './BrandIcons';
 import type { NavbarItem, SiteSettings, SocialLink } from '../types';
 
 function formatCnpjDisplay(value?: string | null) {
@@ -81,83 +82,118 @@ export function Footer({ settings }: { settings?: SiteSettings }) {
   };
 
   const siteName = settings?.siteName || 'seusite.com.br';
+  const socialLabels: Record<SocialLink['platform'], string> = {
+    instagram: 'Instagram',
+    whatsapp: 'WhatsApp',
+    facebook: 'Facebook',
+    linkedin: 'LinkedIn',
+    youtube: 'YouTube',
+    tiktok: 'TikTok',
+    x: 'X (Twitter)',
+    email: 'E-mail',
+    site: 'Site',
+    telefone: 'Telefone',
+    custom: 'Link'
+  };
+  const addressParts = settings?.address
+    ? [settings.address.neighborhood, settings.address.city && settings.address.state ? `${settings.address.city} - ${settings.address.state}` : settings.address.city]
+        .filter(Boolean)
+        .join(', ')
+    : '';
 
   return (
     <footer className="footer brand-footer">
-      <div className="container footer-nav-row">
-        {roots.map((item) => (
-          <div key={item.id} className="footer-column">
-            {item.type === 'EXTERNAL_URL' ? (
-              <a href={resolveHref(item)} className="footer-link" target="_blank" rel="noreferrer">
-                {item.label}
-              </a>
-            ) : (
-              <a href={resolveHref(item)} className="footer-link">
-                {item.label}
-              </a>
-            )}
-            {(childrenMap[item.id] ?? []).length > 0 && (
-              <div className="footer-sub-links">
-                {childrenMap[item.id].map((child) =>
-                  child.type === 'EXTERNAL_URL' ? (
-                    <a key={child.id} href={resolveHref(child)} className="footer-link" target="_blank" rel="noreferrer">
-                      {child.label}
-                    </a>
-                  ) : (
-                    <a key={child.id} href={resolveHref(child)} className="footer-link">
-                      {child.label}
-                    </a>
-                  )
-                )}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-      <div className="footer-divider" />
       <div className="container footer-grid">
         <div className="footer-meta footer-brand">
           <div className="footer-brand-text">
-            <strong className="footer-title">{siteName}</strong>
+            <div className="footer-brand-row">
+              <DoveMark className="footer-brand-icon" />
+              <strong className="footer-title brand-script">{siteName}</strong>
+            </div>
+            {settings?.metaDescription && <p className="footer-blurb">{settings.metaDescription}</p>}
             {settings?.cnpj && <div className="muted">CNPJ: {formatCnpjDisplay(settings.cnpj)}</div>}
             {settings?.professionalRegistration && <div className="muted">{settings.professionalRegistration}</div>}
-            <div className="footer-social-list">
-              {socials.map((link) => {
-                const href = formatUrl(link);
-                const isExternal = /^https?:/i.test(href);
-                return (
-                  <a
-                    key={link.id}
-                    href={href}
-                    target={isExternal ? '_blank' : undefined}
-                    rel={isExternal ? 'noreferrer' : undefined}
-                    className="social-chip"
-                    aria-label={link.label || link.platform}
-                  >
-                    <FontAwesomeIcon icon={socialIconMap[link.platform]} />
-                  </a>
-                );
-              })}
-              {socials.length === 0 && <span className="muted">Nenhuma rede configurada</span>}
-            </div>
-            {settings?.contactEmail && (
-              <div className="footer-email">
-                <FontAwesomeIcon icon={faEnvelope} />
-                <a href={`mailto:${settings.contactEmail}`} className="footer-link">
-                  {settings.contactEmail}
-                </a>
-              </div>
-            )}
           </div>
-          
         </div>
-        <div className="footer-meta footer-socials">
-          
+
+        <div className="footer-col">
+          <h4>Navegação</h4>
+          {roots.map((item) => (
+            <div key={item.id} className="footer-nav-group">
+              {item.type === 'EXTERNAL_URL' ? (
+                <a href={resolveHref(item)} className="footer-link" target="_blank" rel="noreferrer">
+                  {item.label}
+                </a>
+              ) : (
+                <a href={resolveHref(item)} className="footer-link">
+                  {item.label}
+                </a>
+              )}
+              {(childrenMap[item.id] ?? []).length > 0 && (
+                <div className="footer-sub-links">
+                  {childrenMap[item.id].map((child) =>
+                    child.type === 'EXTERNAL_URL' ? (
+                      <a key={child.id} href={resolveHref(child)} className="footer-link" target="_blank" rel="noreferrer">
+                        {child.label}
+                      </a>
+                    ) : (
+                      <a key={child.id} href={resolveHref(child)} className="footer-link">
+                        {child.label}
+                      </a>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="footer-col">
+          <h4>Contato</h4>
+          {settings?.phone && (
+            <span className="footer-contact-line">
+              <FontAwesomeIcon icon={faPhone} />
+              {settings.phone}
+            </span>
+          )}
+          {settings?.contactEmail && (
+            <a href={`mailto:${settings.contactEmail}`} className="footer-link footer-contact-line">
+              <FontAwesomeIcon icon={faEnvelope} />
+              {settings.contactEmail}
+            </a>
+          )}
+          {socials
+            // 'email' já aparece via settings.contactEmail acima — evita duplicar
+            // quando o mesmo e-mail também está cadastrado nas redes sociais.
+            .filter((link) => link.platform !== 'email' || !settings?.contactEmail)
+            .map((link) => {
+              const href = formatUrl(link);
+              const isExternal = /^https?:/i.test(href);
+              return (
+                <a
+                  key={link.id}
+                  href={href}
+                  target={isExternal ? '_blank' : undefined}
+                  rel={isExternal ? 'noreferrer' : undefined}
+                  className="footer-link footer-contact-line"
+                >
+                  <FontAwesomeIcon icon={socialIconMap[link.platform]} />
+                  {link.label || socialLabels[link.platform]}
+                </a>
+              );
+            })}
+          {addressParts && (
+            <span className="footer-contact-line">
+              <FontAwesomeIcon icon={faLocationDot} />
+              {addressParts}
+            </span>
+          )}
         </div>
       </div>
+      <div className="footer-divider thin" />
       <div className="container footer-bottom">
         <span>
-          &copy; {year} {siteName} | Todos os direitos reservados.
+          &copy; {year} {siteName}. Todos os direitos reservados.
         </span>
       </div>
     </footer>

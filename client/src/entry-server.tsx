@@ -57,7 +57,8 @@ export async function render(url: string, origin: string): Promise<RenderResult>
     pathname,
     siteSettings,
     extraJsonLd: seo.extraJsonLd,
-    noIndex: seo.noIndex
+    noIndex: seo.noIndex,
+    appendSiteName: seo.appendSiteName
   });
 
   const dehydratedState = dehydrate(queryClient);

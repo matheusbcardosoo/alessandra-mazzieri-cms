@@ -1,3 +1,4 @@
+import { Icon, isRegisteredIcon } from '@/components/Icon';
 import type { BlockRendererProps } from '../_shared/types';
 import type { ButtonGroupBlockData } from './schema';
 
@@ -21,7 +22,12 @@ export function ButtonGroupRenderer({ data }: BlockRendererProps<ButtonGroupBloc
             target={btn.linkMode === 'page' ? undefined : '_blank'}
             rel={btn.linkMode === 'page' ? undefined : 'noreferrer'}
           >
-            {btn.label}
+            <span>{btn.label}</span>
+            {btn.icon && (
+              <span className="page-button-icon">
+                {isRegisteredIcon(btn.icon) ? <Icon name={btn.icon} /> : btn.icon}
+              </span>
+            )}
           </a>
         );
       })}

@@ -17,6 +17,8 @@ export type RouteSeo = {
   description?: string | null;
   extraJsonLd?: Record<string, unknown>[];
   noIndex?: boolean;
+  /** Home's title is written by the admin as the full `<title>` tag already — don't append "| SiteName" again. */
+  appendSiteName?: boolean;
 };
 
 export type PrefetchResult = {
@@ -50,7 +52,7 @@ async function prefetchForPath(pathname: string, origin: string, queryClient: Qu
       .fetchQuery({ queryKey: ['home', 'page-builder'], queryFn: fetchHomePage })
       .catch(() => null);
     if (!page) return { title: 'Início' };
-    return { title: page.title || 'Início', description: page.description };
+    return { title: page.title || 'Início', description: page.description, appendSiteName: false };
   }
 
   if (pathname === '/sobre' || pathname === '/contato') {

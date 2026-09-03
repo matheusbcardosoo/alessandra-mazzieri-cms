@@ -92,6 +92,8 @@ export type FormBlockData = {
   /** Cor do botão de envio: 'default' = cor primária do tema; 'custom' = cor escolhida */
   buttonColorMode?: 'default' | 'custom';
   buttonColor?: string | null;
+  /** '2' pareia os campos 2 a 2 numa grid (textarea sempre ocupa a linha inteira); '1' empilha tudo (padrão) */
+  layout?: '1' | '2';
 };
 
 export type HeroMediaMode = 'single_image' | 'cards_only' | 'four_cards';
@@ -156,8 +158,9 @@ export type PillsBlockData = {
 };
 
 export type SpanBlockData = {
-  kind: 'accent-bar' | 'muted-text';
+  kind: 'accent-bar' | 'muted-text' | 'floating-badge' | 'eyebrow';
   text?: string | null;
+  icon?: string | null;
 };
 
 export type ButtonGroupButton = {
@@ -169,6 +172,7 @@ export type ButtonGroupButton = {
   pageKey?: string | null;
   pageId?: string | null;
   slug?: string | null;
+  icon?: string | null;
 };
 
 export type ButtonGroupBlockData = {
@@ -276,9 +280,23 @@ export type ContactInfoBlockData = {
   titleHtml: string;
   descriptionHtml?: string;
   whatsappLabel: string;
-  whatsappVariant: 'primary' | 'secondary' | 'tertiary';
+  whatsappVariant: 'primary' | 'secondary' | 'tertiary' | 'badge';
   socialLinksTitle: string;
   socialLinksVariant: 'list' | 'icons';
+};
+
+export type FaqItem = {
+  id: string;
+  question: string;
+  answer: string;
+};
+
+export type FaqBlockData = {
+  title?: string | null;
+  subtitle?: string | null;
+  items: FaqItem[];
+  /** Índice do item aberto por padrão (0 = primeiro). null = todos fechados. */
+  defaultOpenIndex?: number | null;
 };
 
 export type HeroLayoutVariant = 'split' | 'stacked';
@@ -318,6 +336,7 @@ export type PageBlock =
   | { id: string; type: 'contact-info';  colSpan?: number; rowIndex?: number; data: ContactInfoBlockData; isLocked?: boolean; visible?: boolean; blockBackground?: BlockBackground; createdAt?: string; updatedAt?: string }
   | { id: string; type: 'services';      colSpan?: number; rowIndex?: number; data: ServicesBlockData;    isLocked?: boolean; visible?: boolean; blockBackground?: BlockBackground; createdAt?: string; updatedAt?: string }
   | { id: string; type: 'cta';           colSpan?: number; rowIndex?: number; data: CtaBlockData;         isLocked?: boolean; visible?: boolean; blockBackground?: BlockBackground; createdAt?: string; updatedAt?: string }
-  | { id: string; type: 'media-text';    colSpan?: number; rowIndex?: number; data: MediaTextBlockData;   isLocked?: boolean; visible?: boolean; blockBackground?: BlockBackground; createdAt?: string; updatedAt?: string };
+  | { id: string; type: 'media-text';    colSpan?: number; rowIndex?: number; data: MediaTextBlockData;   isLocked?: boolean; visible?: boolean; blockBackground?: BlockBackground; createdAt?: string; updatedAt?: string }
+  | { id: string; type: 'faq';           colSpan?: number; rowIndex?: number; data: FaqBlockData;         isLocked?: boolean; visible?: boolean; blockBackground?: BlockBackground; createdAt?: string; updatedAt?: string };
 
 export type BlockType = PageBlock['type'];

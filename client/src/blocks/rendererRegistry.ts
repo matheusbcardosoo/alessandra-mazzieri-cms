@@ -18,6 +18,7 @@ import { SocialLinksRenderer } from './social-links/renderer';
 import { WhatsAppCtaRenderer } from './whatsapp-cta/renderer';
 import { ContactInfoRenderer } from './contact-info/renderer';
 import { ServicesRenderer } from './services/renderer';
+import { FaqRenderer } from './faq/renderer';
 
 export type RendererConfig = {
   renderer: React.ComponentType<BlockRendererProps<unknown>>;
@@ -55,5 +56,6 @@ export const rendererRegistry: Record<BlockType, RendererConfig> = {
   'social-links': { renderer: SocialLinksRenderer as RendererConfig['renderer'] },
   'whatsapp-cta': { renderer: WhatsAppCtaRenderer as RendererConfig['renderer'] },
   'contact-info': { renderer: ContactInfoRenderer as RendererConfig['renderer'] },
-  services: { renderer: ServicesRenderer as RendererConfig['renderer'] }
+  services: { renderer: ServicesRenderer as RendererConfig['renderer'] },
+  faq: { renderer: FaqRenderer as RendererConfig['renderer'] }
 };

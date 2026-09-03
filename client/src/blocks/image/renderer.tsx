@@ -31,6 +31,7 @@ export function ImageRenderer({ data }: BlockRendererProps<ImageBlockData>) {
   return (
     <figure className={figureClass}>
       <OptimizedImage src={data.src} avifSrc={data.avifSrc} alt={data.alt ?? ''} loading="lazy" style={cropStyles} />
+      {data.caption && <figcaption className="page-public-image-caption">{data.caption}</figcaption>}
     </figure>
   );
 }

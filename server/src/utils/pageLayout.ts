@@ -67,6 +67,19 @@ export type HeroBlockDataV2 = {
 
 export type HeroBlockData = HeroBlockDataV1 | HeroBlockDataV2;
 
+export type FaqItem = {
+  id: string;
+  question: string;
+  answer: string;
+};
+
+export type FaqBlockData = {
+  title?: string | null;
+  subtitle?: string | null;
+  items: FaqItem[];
+  defaultOpenIndex?: number | null;
+};
+
 const baseBlockSchema = z.object({
   id: z.string().min(6).optional(),
   createdAt: z.string().datetime().optional(),
@@ -171,7 +184,8 @@ const formBlockSchema = baseBlockSchema.extend({
     fields: z.array(formFieldSchema).min(1).max(20),
     submitLabel: z.string().optional(),
     successMessage: z.string().optional(),
-    storeSummaryKeys: z.array(z.string()).optional()
+    storeSummaryKeys: z.array(z.string()).optional(),
+    layout: z.enum(['1', '2']).optional()
   })
 });
 
@@ -220,8 +234,9 @@ const spanBlockSchema = baseBlockSchema.extend({
   type: z.literal('span'),
   data: z.object({
     // 'divider'/'spacer' mantidos por compatibilidade com dados antigos.
-    kind: z.enum(['accent-bar', 'muted-text', 'divider', 'spacer']).optional(),
-    text: z.string().optional().nullable()
+    kind: z.enum(['accent-bar', 'muted-text', 'floating-badge', 'eyebrow', 'divider', 'spacer']).optional(),
+    text: z.string().optional().nullable(),
+    icon: z.string().optional().nullable()
   })
 });
 
@@ -267,7 +282,7 @@ const contactInfoBlockSchema = baseBlockSchema.extend({
     titleHtml: z.string(),
     descriptionHtml: z.string().optional(),
     whatsappLabel: z.string(),
-    whatsappVariant: z.enum(['primary', 'secondary', 'tertiary']),
+    whatsappVariant: z.enum(['primary', 'secondary', 'tertiary', 'badge']),
     socialLinksTitle: z.string(),
     socialLinksVariant: z.enum(['list', 'icons'])
   })
@@ -320,6 +335,22 @@ const ctaBlockSchema = baseBlockSchema.extend({
     imageSide: z.enum(['left', 'right']).optional(),
     imageDissolve: z.boolean().optional(),
     imageDissolveStrength: z.enum(['soft', 'medium', 'strong']).optional()
+  })
+});
+
+const faqItemSchema = z.object({
+  id: z.string().min(1),
+  question: z.string().min(1),
+  answer: z.string().min(1)
+});
+
+const faqBlockSchema = baseBlockSchema.extend({
+  type: z.literal('faq'),
+  data: z.object({
+    title: z.string().optional().nullable(),
+    subtitle: z.string().optional().nullable(),
+    items: z.array(faqItemSchema).min(1).max(20),
+    defaultOpenIndex: z.number().int().min(0).optional().nullable()
   })
 });
 
@@ -470,7 +501,8 @@ export const pageBlockSchema = z.discriminatedUnion('type', [
   mediaTextBlockSchema,
   cardBlockSchema,
   formBlockSchema,
-  heroBlockSchema
+  heroBlockSchema,
+  faqBlockSchema
 ]);
 
 // Formato tolerante para a checagem semântica pré-Zod abaixo: os campos são
@@ -655,6 +687,7 @@ export type FormBlockData = {
   submitLabel?: string;
   successMessage?: string;
   storeSummaryKeys?: string[];
+  layout?: '1' | '2';
 };
 
 export type ButtonGroupBlockData = {
@@ -688,8 +721,9 @@ export type PillsBlockData = {
 };
 
 export type SpanBlockData = {
-  kind?: 'accent-bar' | 'muted-text' | 'divider' | 'spacer';
+  kind?: 'accent-bar' | 'muted-text' | 'floating-badge' | 'eyebrow' | 'divider' | 'spacer';
   text?: string | null;
+  icon?: string | null;
 };
 
 export type RecentPostsBlockData = {
@@ -723,7 +757,7 @@ export type ContactInfoBlockData = {
   titleHtml: string;
   descriptionHtml?: string;
   whatsappLabel: string;
-  whatsappVariant: 'primary' | 'secondary' | 'tertiary';
+  whatsappVariant: 'primary' | 'secondary' | 'tertiary' | 'badge';
   socialLinksTitle: string;
   socialLinksVariant: 'list' | 'icons';
 };
@@ -957,6 +991,17 @@ export type PageBlock =
       createdAt: string;
       updatedAt: string;
       data: MediaTextBlockData;
+      isLocked?: boolean;
+      visible?: boolean;
+    }
+  | {
+      id: string;
+      type: 'faq';
+      rowIndex?: number;
+      colSpan?: number;
+      createdAt: string;
+      updatedAt: string;
+      data: FaqBlockData;
       isLocked?: boolean;
       visible?: boolean;
     };
@@ -1307,7 +1352,8 @@ function normalizeBlock(block: unknown, now: string): PageBlock | null {
         pageKey: btn.pageKey ?? null,
         pageId: btn.pageId ?? null,
         slug: btn.slug ?? null,
-        newTab: btn.newTab ?? false
+        newTab: btn.newTab ?? false,
+        icon: btn.icon ?? null
       }));
       return {
         ...common,
@@ -1334,12 +1380,14 @@ function normalizeBlock(block: unknown, now: string): PageBlock | null {
     }
     case 'span': {
       const kind = base.data.kind ?? 'accent-bar';
+      const hasText = kind === 'muted-text' || kind === 'floating-badge' || kind === 'eyebrow';
       return {
         ...common,
         type: 'span',
         data: {
           kind,
-          text: kind === 'muted-text' ? (base.data.text?.trim() || null) : null
+          text: hasText ? (base.data.text?.trim() || null) : null,
+          icon: kind === 'floating-badge' ? (base.data.icon?.trim() || null) : null
         }
       };
     }
@@ -1420,7 +1468,8 @@ function normalizeBlock(block: unknown, now: string): PageBlock | null {
           fields,
           submitLabel: base.data.submitLabel?.trim() || 'Enviar',
           successMessage: base.data.successMessage?.trim() || 'Formulário enviado com sucesso!',
-          storeSummaryKeys: base.data.storeSummaryKeys ?? []
+          storeSummaryKeys: base.data.storeSummaryKeys ?? [],
+          layout: base.data.layout === '2' ? '2' : '1'
         }
       };
     }
@@ -1606,11 +1655,13 @@ function normalizeBlock(block: unknown, now: string): PageBlock | null {
         ...common,
         type: 'contact-info',
         data: {
-          titleHtml: base.data.titleHtml?.trim() || '<h2>Contato</h2>',
+          // string vazia é uma escolha explícita de "sem título" — só cai no default quando o
+          // campo nunca foi definido (undefined/null), mesmo padrão do bloco 'cta' acima.
+          titleHtml: base.data.titleHtml != null ? base.data.titleHtml.trim() : '<h2>Contato</h2>',
           descriptionHtml: base.data.descriptionHtml?.trim(),
           whatsappLabel: base.data.whatsappLabel?.trim() || 'Enviar mensagem',
           whatsappVariant: base.data.whatsappVariant ?? 'primary',
-          socialLinksTitle: base.data.socialLinksTitle?.trim() || 'Redes Sociais',
+          socialLinksTitle: base.data.socialLinksTitle != null ? base.data.socialLinksTitle.trim() : 'Redes Sociais',
           socialLinksVariant: base.data.socialLinksVariant ?? 'list'
         }
       };
@@ -1657,7 +1708,9 @@ function normalizeBlock(block: unknown, now: string): PageBlock | null {
         data: {
           title: base.data.title?.toString().trim() || 'Vamos conversar?',
           text: base.data.text?.toString().trim() || 'Agende uma conversa inicial para entender o melhor plano.',
-          ctaLabel: base.data.ctaLabel?.toString().trim() || 'Agendar',
+          // string vazia é uma escolha explícita de "sem botão" (banner só com texto) — só cai no
+          // default 'Agendar' quando o campo nunca foi definido (undefined/null).
+          ctaLabel: base.data.ctaLabel != null ? base.data.ctaLabel.toString().trim() : 'Agendar',
           ctaHref: normalizeInternalHref(base.data.ctaHref?.toString() || '/contato') || '/contato',
           ctaLinkMode: base.data.ctaLinkMode ?? null,
           ctaPageKey: base.data.ctaPageKey ?? null,
@@ -1705,6 +1758,23 @@ function normalizeBlock(block: unknown, now: string): PageBlock | null {
           imageWidth,
           imageHeight,
           customImageWidthPct
+        }
+      };
+    }
+    case 'faq': {
+      const items = base.data.items.map((item) => ({
+        id: item.id || randomUUID(),
+        question: item.question.trim(),
+        answer: item.answer.trim()
+      }));
+      return {
+        ...common,
+        type: 'faq',
+        data: {
+          title: base.data.title?.trim() || null,
+          subtitle: base.data.subtitle?.trim() || null,
+          items,
+          defaultOpenIndex: typeof base.data.defaultOpenIndex === 'number' ? base.data.defaultOpenIndex : null
         }
       };
     }

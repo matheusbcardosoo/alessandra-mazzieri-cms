@@ -65,6 +65,10 @@ import { ServicesRenderer } from './services/renderer';
 import { ServicesForm } from './services/Form';
 import { servicesDefault } from './services/schema';
 
+import { FaqRenderer } from './faq/renderer';
+import { FaqBlockForm } from './faq/Form';
+import { faqDefault } from './faq/schema';
+
 export const blockRegistry: Record<BlockType, BlockConfig> = {
   text:           { label: 'Texto',           defaultData: textDefault,        renderer: TextRenderer as BlockConfig['renderer'],           form: TextBlockForm as BlockConfig['form'] },
   image:          { label: 'Imagem',          defaultData: imageDefault,       renderer: ImageRenderer as BlockConfig['renderer'],          form: ImageBlockForm as BlockConfig['form'] },
@@ -82,4 +86,5 @@ export const blockRegistry: Record<BlockType, BlockConfig> = {
   'whatsapp-cta': { label: 'WhatsApp CTA',    defaultData: whatsAppCtaDefault, renderer: WhatsAppCtaRenderer as BlockConfig['renderer'],   form: WhatsAppCtaBlockForm as BlockConfig['form'] },
   'contact-info': { label: 'Info de Contato', defaultData: contactInfoDefault, renderer: ContactInfoRenderer as BlockConfig['renderer'],   form: ContactInfoForm as BlockConfig['form'] },
   services:       { label: 'Servicos',        defaultData: servicesDefault,    renderer: ServicesRenderer as BlockConfig['renderer'],       form: ServicesForm as BlockConfig['form'] },
+  faq:            { label: 'FAQ (Perguntas)', defaultData: faqDefault,         renderer: FaqRenderer as BlockConfig['renderer'],            form: FaqBlockForm as BlockConfig['form'] },
 };

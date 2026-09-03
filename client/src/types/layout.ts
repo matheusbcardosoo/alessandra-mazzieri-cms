@@ -40,6 +40,8 @@ export type PageSection = {
     hidden?: boolean;
     name?: string;
     anchorId?: string;
+    /** Classe CSS extra aplicada à <section>, usada por estilos específicos de um site. */
+    customClass?: string;
     backgroundColor?: string;
     backgroundMode?: 'none' | 'color' | 'image';
     backgroundImage?: BackgroundImageConfig;

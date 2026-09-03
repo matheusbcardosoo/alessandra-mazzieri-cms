@@ -313,8 +313,11 @@ function normalizeHeroV2(data: HeroBlockDataV2): HeroBlockDataV2 {
   }
 
   if (normalized.rightVariant === 'image-only') {
-    // Should have exactly 1 image
+    // Should have exactly 1 image, plus any purely decorative span
+    // (ex.: floating-badge) layered over it — those aren't a "media mode"
+    // the variant toggle needs to clean up, just an overlay on the image.
     const images = normalized.right.filter(b => b.type === 'image');
+    const decorative = normalized.right.filter(b => b.type === 'span');
     if (images.length === 0) {
       // Add placeholder only if empty
       normalized.right = [{
@@ -327,10 +330,10 @@ function normalizeHeroV2(data: HeroBlockDataV2): HeroBlockDataV2 {
           size: 100,
           heightPct: 100
         } as ImageBlockData
-      } as PageBlock];
+      } as PageBlock, ...decorative];
     } else {
       // Keep only first image
-      normalized.right = [images[0]];
+      normalized.right = [images[0], ...decorative];
     }
   } else if (normalized.rightVariant === 'cards-only') {
     // Should have 4 cards

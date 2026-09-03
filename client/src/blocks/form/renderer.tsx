@@ -1,6 +1,6 @@
 import { useState, type CSSProperties, type FormEvent } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import { submitForm } from '@/api/queries';
 import type { BlockRendererProps } from '../_shared/types';
 import type { FormBlockData } from './schema';
@@ -152,14 +152,17 @@ export function FormRenderer({ data: formData, blockId, enableFormSubmit = true,
           aria-hidden="true"
         />
 
-        <div className="form-fields">
+        <div className={`form-fields ${formData.layout === '2' ? 'form-grid-2' : ''}`.trim()}>
           {formData.fields.map((field) => {
             const value = values[field.id] || '';
             const error = errors[field.id];
             const fieldId = `field-${field.id}`;
 
             return (
-              <div key={field.id} className={`form-field ${error ? 'has-error' : ''}`.trim()}>
+              <div
+                key={field.id}
+                className={`form-field ${field.type === 'textarea' ? 'form-field-full' : ''} ${error ? 'has-error' : ''}`.trim()}
+              >
                 <label htmlFor={fieldId}>
                   {field.label}
                   {field.required && <span className="required-mark" aria-label="obrigatório"> *</span>}
@@ -235,7 +238,10 @@ export function FormRenderer({ data: formData, blockId, enableFormSubmit = true,
               <span>Enviando...</span>
             </>
           ) : (
-            formData.submitLabel || 'Enviar'
+            <>
+              <span>{formData.submitLabel || 'Enviar'}</span>
+              <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" />
+            </>
           )}
         </button>
       </form>

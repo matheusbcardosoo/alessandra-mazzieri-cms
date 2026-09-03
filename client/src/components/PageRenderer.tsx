@@ -169,7 +169,7 @@ function SectionRenderer({ section, sectionIndex, enableFormSubmit = true, pageS
   return (
     <section
       id={settings.anchorId || undefined}
-      className={`page-public-section ${legacyBgClass} ${paddingClass} ${maxWidthClass} ${heightClass}`.trim()}
+      className={`page-public-section ${legacyBgClass} ${paddingClass} ${maxWidthClass} ${heightClass} ${settings.customClass ?? ''}`.trim()}
       data-section-index={sectionIndex}
       style={sectionOverlayStyle ? { ...sectionStyle, position: 'relative' } : sectionStyle}
     >

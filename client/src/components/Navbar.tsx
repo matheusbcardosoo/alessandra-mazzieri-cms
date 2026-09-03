@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { fetchNavbar } from '../api/queries';
+import { Icon } from './Icon';
+import { DoveMark } from './BrandIcons';
 import type { NavbarItem, SiteSettings } from '../types';
 import '../public.css';
 
@@ -17,6 +20,20 @@ const resolveHref = (item: NavbarItem) => {
   if (key === 'blog') return '/blog';
   if (key === 'sobre' || key === 'contato') return `/${key}`;
   return `/p/${key}`;
+};
+
+// Um link "externo" que na verdade é uma âncora da própria página (ex.: "/#sobre")
+// não deve abrir em nova aba nem recarregar a página quando o destino já está
+// presente no DOM — apenas rolar suavemente até a seção.
+const isAnchorLink = (href: string) => href.startsWith('#') || href.startsWith('/#');
+
+const scrollToAnchor = (href: string, event: MouseEvent) => {
+  const id = href.split('#')[1];
+  if (!id) return;
+  const target = document.getElementById(id);
+  if (!target) return; // não estamos na Home: deixa o navegador seguir o link normalmente
+  event.preventDefault();
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 const buildNavTree = (items: NavbarItem[]): NavNode[] => {
@@ -53,15 +70,20 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const mobileMenuRef = useRef<HTMLDivElement | null>(null);
   const mobileToggleRef = useRef<HTMLButtonElement | null>(null);
-  const mobileCloseRef = useRef<HTMLButtonElement | null>(null);
-  const wasMobileOpen = useRef(false);
   const brand = settings?.siteName || 'Site';
   const brandTagline = (settings?.brandTagline ?? '').trim();
   const showBrandTagline = brandTagline.length > 0;
   const showScheduleCta = !(settings?.hideScheduleCta ?? false);
-  const portalTarget = typeof document !== 'undefined' ? document.body : null;
+  const whatsappEnabled = settings?.whatsappEnabled ?? false;
+  const whatsappHref = whatsappEnabled && settings?.whatsappLink
+    ? (() => {
+        const link = settings.whatsappLink as string;
+        const message = (settings.whatsappMessage ?? '').trim();
+        const base = /^https?:\/\//i.test(link) ? link : `https://wa.me/${link.replace(/\D/g, '')}`;
+        return message ? `${base}${base.includes('?') ? '&' : '?'}text=${encodeURIComponent(message)}` : base;
+      })()
+    : null;
 
   const navbarItems = useMemo(
     () => (items ?? []).filter((item) => item.isVisible !== false && item.showInNavbar),
@@ -94,17 +116,6 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [mobileOpen]);
-
-  useEffect(() => {
-    if (mobileOpen) {
-      requestAnimationFrame(() => {
-        mobileCloseRef.current?.focus();
-      });
-    } else if (wasMobileOpen.current) {
-      mobileToggleRef.current?.focus();
-    }
-    wasMobileOpen.current = mobileOpen;
   }, [mobileOpen]);
 
   const closeMobileMenu = () => {
@@ -140,6 +151,21 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
   const renderLink = (item: NavbarItem, className = 'nav-link', onSelect?: () => void) => {
     const href = resolveHref(item);
     if (item.type === 'EXTERNAL_URL') {
+      if (isAnchorLink(href)) {
+        return (
+          <a
+            key={item.id}
+            href={href}
+            className={className}
+            onClick={(event) => {
+              scrollToAnchor(href, event);
+              onSelect?.();
+            }}
+          >
+            {item.label}
+          </a>
+        );
+      }
       return (
         <a key={item.id} href={href} className={className} target="_blank" rel="noreferrer" onClick={onSelect}>
           {item.label}
@@ -162,11 +188,13 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
     <header className={`nav-shell ${scrolled ? 'scrolled' : ''}`}>
       <div className="container navbar">
         <NavLink to="/" className="nav-brand">
-          {settings?.logoUrl && (
+          {settings?.logoUrl ? (
             <img src={settings.logoUrl} alt={brand} className="nav-brand-logo" />
+          ) : (
+            <DoveMark className="nav-brand-icon" />
           )}
           <div className="nav-brand-text">
-            <span className="nav-brand-name">{brand}</span>
+            <span className="nav-brand-name brand-script">{brand}</span>
             {showBrandTagline && (
               <span className="nav-brand-tagline" title={brandTagline}>
                 {brandTagline}
@@ -228,7 +256,7 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
                       }
                     }}
                   >
-                    ▾
+                    <FontAwesomeIcon icon={faChevronDown} />
                   </button>
                 </div>
                 {openId === item.id && (
@@ -254,80 +282,71 @@ export function Navbar({ settings }: { settings?: SiteSettings }) {
               renderLink(item)
             )
           )}
-          {showScheduleCta && (
-            <NavLink to="/contato" className="btn btn-primary" style={{ paddingInline: '1.1rem' }}>
-              Agendar
-            </NavLink>
-          )}
         </nav>
-        <button
-          ref={mobileToggleRef}
-          type="button"
-          className="nav-menu-toggle"
-          aria-label="Abrir menu"
-          aria-expanded={mobileOpen}
-          aria-controls="nav-mobile-menu"
-          onClick={() => setMobileOpen((prev) => !prev)}
-        >
-          ☰
-        </button>
+        <div className="nav-cta">
+          {showScheduleCta && (
+            whatsappHref ? (
+              <a href={whatsappHref} className="btn btn-outline" target="_blank" rel="noreferrer">
+                <span>Falar com Terapeuta</span>
+                <Icon name="whatsapp" />
+              </a>
+            ) : (
+              <NavLink to="/contato" className="btn btn-primary" style={{ paddingInline: '1.1rem' }}>
+                Agendar
+              </NavLink>
+            )
+          )}
+          <button
+            ref={mobileToggleRef}
+            type="button"
+            className="nav-menu-toggle"
+            aria-label={mobileOpen ? 'Fechar menu' : 'Abrir menu'}
+            aria-expanded={mobileOpen}
+            aria-controls="nav-mobile-menu"
+            onClick={() => setMobileOpen((prev) => !prev)}
+          >
+            <span className="nav-hamburger">
+              <span />
+              <span />
+              <span />
+            </span>
+          </button>
+        </div>
       </div>
-      {mobileOpen && portalTarget
-        ? createPortal(
-            <div className="nav-mobile-overlay" onClick={closeMobileMenu}>
-              <div
-                id="nav-mobile-menu"
-                className="nav-mobile-panel"
-                role="dialog"
-                aria-modal="true"
-                tabIndex={-1}
-                ref={mobileMenuRef}
-                onClick={(event) => event.stopPropagation()}
-              >
-                <div className="nav-mobile-header">
-                  <div className="nav-mobile-brand">
-                    <span className="nav-brand-name">{brand}</span>
-                    {showBrandTagline && (
-                      <span className="nav-brand-tagline nav-brand-tagline--mobile" title={brandTagline}>
-                        {brandTagline}
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    ref={mobileCloseRef}
-                    type="button"
-                    className="nav-mobile-close"
-                    onClick={closeMobileMenu}
-                    aria-label="Fechar menu"
-                  >
-                    X
-
-                  </button>
-                </div>
-                <div className="nav-mobile-links">
-                  {navTree.map((item) => (
-                    <div key={item.id} className="nav-mobile-group">
-                      {renderLink(item, 'nav-mobile-link', closeMobileMenu)}
-                      {item.children?.length > 0 && (
-                        <div className="nav-mobile-sub">
-                          {item.children.map((child) =>
-                            renderLink(child, 'nav-mobile-link nav-mobile-link--child', closeMobileMenu)
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  {showScheduleCta && (
-                    <NavLink to="/contato" className="btn btn-primary nav-mobile-cta" onClick={closeMobileMenu}>
-                      Agendar
-                    </NavLink>
-                  )}
-                </div>
+      <div id="nav-mobile-menu" className={`nav-mobile-menu ${mobileOpen ? 'open' : ''}`}>
+        {navTree.map((item, index) => (
+          <div key={item.id} className="nav-mobile-menu-item" style={{ '--i': index } as CSSProperties}>
+            {renderLink(item, 'nav-mobile-link', closeMobileMenu)}
+            {item.children?.length > 0 && (
+              <div className="nav-mobile-sub">
+                {item.children.map((child) =>
+                  renderLink(child, 'nav-mobile-link nav-mobile-link--child', closeMobileMenu)
+                )}
               </div>
-            </div>,
-            portalTarget
-          )
-        : null}
+            )}
+          </div>
+        ))}
+        {showScheduleCta && (
+          <div className="nav-mobile-menu-item nav-mobile-menu-item--cta" style={{ '--i': navTree.length } as CSSProperties}>
+            {whatsappHref ? (
+              <a
+                href={whatsappHref}
+                className="btn btn-primary nav-mobile-cta"
+                target="_blank"
+                rel="noreferrer"
+                onClick={closeMobileMenu}
+              >
+                <span>Falar com Terapeuta</span>
+                <Icon name="whatsapp" />
+              </a>
+            ) : (
+              <NavLink to="/contato" className="btn btn-primary nav-mobile-cta" onClick={closeMobileMenu}>
+                Agendar
+              </NavLink>
+            )}
+          </div>
+        )}
+      </div>
     </header>
   );
 }

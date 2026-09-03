@@ -2,7 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchHomePage } from '../api/queries';
 import { SeoHead } from '../components/SeoHead';
 import { PageRenderer } from '../components/PageRenderer';
-import type { Page } from '../types';
+import { TagMarquee } from '../components/TagMarquee';
+import type { Page, PageLayoutV2 } from '../types';
 
 export function HomePage() {
   const {
@@ -15,9 +16,13 @@ export function HomePage() {
   const seoTitle = homePage?.title ?? 'Início';
   const seoDescription = homePage?.description ?? '[Descreva em 1-2 frases o que você oferece e para quem]';
 
+  const sections = (homePage?.layout as PageLayoutV2 | undefined)?.sections ?? [];
+  const heroSection = sections[0];
+  const restSections = sections.slice(1);
+
   return (
     <>
-      <SeoHead title={seoTitle} description={seoDescription} />
+      <SeoHead title={seoTitle} description={seoDescription} appendSiteName={false} />
 
       <section className="section-block" style={{ paddingTop: 0 }}>
         <div className="container" style={{ display: 'grid', gap: '1rem' }}>
@@ -41,12 +46,22 @@ export function HomePage() {
             </div>
           )}
 
-          {!isLoadingHome && !isHomeError && homePage && <PageRenderer layout={homePage.layout} pageSlug="home" />}
-          {!isLoadingHome && !isHomeError && !homePage && (
-            <div className="admin-card admin-empty">Nenhum conteúdo publicado para a Home.</div>
+          {!isLoadingHome && !isHomeError && homePage && heroSection && (
+            <PageRenderer layout={{ version: 2, sections: [heroSection] }} pageSlug="home" />
           )}
         </div>
       </section>
+
+      {!isLoadingHome && !isHomeError && homePage && restSections.length > 0 && <TagMarquee />}
+
+      {!isLoadingHome && !isHomeError && homePage && restSections.length > 0 && (
+        <PageRenderer layout={{ version: 2, sections: restSections }} pageSlug="home" />
+      )}
+      {!isLoadingHome && !isHomeError && !homePage && (
+        <div className="container">
+          <div className="admin-card admin-empty">Nenhum conteúdo publicado para a Home.</div>
+        </div>
+      )}
     </>
   );
 }

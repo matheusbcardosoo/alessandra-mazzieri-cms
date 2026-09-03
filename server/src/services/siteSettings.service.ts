@@ -9,6 +9,7 @@ export type SocialLink = {
   id: string;
   platform: string;
   label?: string | null;
+  description?: string | null;
   url: string;
   order: number;
   isVisible: boolean;

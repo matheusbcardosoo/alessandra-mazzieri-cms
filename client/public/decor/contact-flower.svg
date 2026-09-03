@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g transform="translate(50,50)">
+    <g id="cflower">
+      <path d="M0,-5 C12,-17 12,-34 0,-44 C-12,-34 -12,-17 0,-5 Z" fill="#B96F28"/>
+      <path d="M0,-7 C8,-17 8,-30 0,-38 C-3,-30 -3,-17 0,-7 Z" fill="#E8C0C9" opacity="0.7"/>
+    </g>
+    <use href="#cflower" transform="rotate(72)"/>
+    <use href="#cflower" transform="rotate(144)"/>
+    <use href="#cflower" transform="rotate(216)"/>
+    <use href="#cflower" transform="rotate(288)"/>
+    <circle r="8" fill="#647651"/>
+  </g>
+</svg>

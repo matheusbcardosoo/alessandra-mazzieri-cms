@@ -21,6 +21,23 @@ picture {
   display: contents;
 }
 
+/* index.css (compartilhado com o admin) pinta body/main com radial-gradients
+   + linear-gradient — cor sólida e uniforme na referência. Sobrescrito aqui,
+   não em index.css, pra não mudar o visual do painel admin. */
+body,
+main {
+  background: var(--color-paper);
+}
+
+/* As flores decorativas de seção usam overflow:visible (ver "Flores
+   decorativas por seção" abaixo) pra nunca cortar a flor — o que deixa a
+   ponta de algumas vazar um pouco além da borda da section. Sem isso aqui,
+   esse vazamento nas bordas (esquerda/direita) criaria scroll horizontal. */
+html,
+body {
+  overflow-x: hidden;
+}
+
 .public-theme-loader {
   --uib-size: 60px;
   --uib-speed: 2s;
@@ -145,13 +162,13 @@ picture {
   z-index: 30;
   padding: 1rem 0;
   transition: background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
-  background: var(--color-deep);
-  border-bottom: 1px solid transparent;
+  background: rgba(var(--theme-background-rgb), 0.92);
+  border-bottom: 1px solid rgba(var(--theme-text-rgb), 0.14);
   backdrop-filter: blur(10px);
 }
 
 .nav-shell.scrolled {
-  background: var(--color-deep);
+  background: rgba(var(--theme-background-rgb), 0.98);
   border-bottom-color: rgba(var(--theme-primary-rgb), 0.16);
   box-shadow: 0 10px 30px rgba(var(--theme-text-rgb), 0.08);
 }
@@ -160,8 +177,8 @@ picture {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
-  flex-wrap: wrap;
+  gap: 1rem;
+  flex-wrap: nowrap;
 }
 
 .nav-brand {
@@ -170,6 +187,8 @@ picture {
   gap: 0.75rem;
   text-decoration: none;
   transition: opacity 0.2s ease;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .nav-brand:hover {
@@ -182,6 +201,14 @@ picture {
   border-radius: 12px;
   object-fit: cover;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-brand-icon {
+  width: 26px;
+  height: auto;
+  flex: 0 0 auto;
+  color: var(--color-terracotta);
+  transform: rotate(-8deg);
 }
 
 .nav-brand-text {
@@ -236,6 +263,21 @@ picture {
   flex-wrap: wrap;
 }
 
+.nav-links--desktop {
+  flex: 1 1 auto;
+  justify-content: center;
+  gap: clamp(1rem, 2vw, 2.3rem);
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.nav-cta {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .nav-menu-toggle {
   display: none;
   align-items: center;
@@ -243,11 +285,10 @@ picture {
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  border: 1px solid rgba(var(--theme-accent-rgb), 0.35);
-  background: rgba(var(--theme-text-rgb), 0.8);
-  color: var(--color-paper);
-  font-size: 1.25rem;
-  box-shadow: 0 10px 24px rgba(var(--theme-text-rgb), 0.2);
+  border: 1px solid rgba(var(--theme-text-rgb), 0.2);
+  background: transparent;
+  color: var(--color-deep);
+  box-shadow: none;
   transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
 }
 
@@ -256,97 +297,135 @@ picture {
   border-color: rgba(var(--theme-primary-rgb), 0.7);
 }
 
-.nav-mobile-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(4px);
-  z-index: 9999;
+/* Ícone de hamburger que morfa em X — três barras absolutas que giram/desaparecem,
+   igual à referência (sem troca de ícone, só transform/opacity nos spans). */
+.nav-hamburger {
+  position: relative;
+  width: 20px;
+  height: 14px;
+  display: block;
 }
 
-.nav-mobile-panel {
-  position: fixed;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
-  max-width: 520px;
-  max-height: calc(100vh - 32px);
-  background: var(--color-deep);
-  color: var(--color-paper);
-  border-radius: 20px;
-  border: 1px solid rgba(var(--theme-accent-rgb), 0.35);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35);
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  outline: none;
-  overflow: hidden;
+.nav-hamburger span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 350ms cubic-bezier(0.19, 1, 0.22, 1), opacity 250ms ease, top 350ms cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-.nav-mobile-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  font-weight: 600;
-  gap: 0.75rem;
+.nav-hamburger span:nth-child(1) {
+  top: 0;
 }
 
-.nav-mobile-brand {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
-  flex: 1;
-  overflow: hidden;
+.nav-hamburger span:nth-child(2) {
+  top: 6px;
 }
 
-.nav-brand-tagline--mobile {
-  font-size: 0.65rem;
+.nav-hamburger span:nth-child(3) {
+  top: 12px;
 }
 
-.nav-mobile-close {
-  border: 1px solid rgba(var(--theme-accent-rgb), 0.35);
-  background: transparent;
-  color: var(--color-paper);
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  flex-shrink: 0;
+.nav-menu-toggle[aria-expanded='true'] .nav-hamburger span:nth-child(1) {
+  top: 6px;
+  transform: rotate(45deg);
 }
 
-.nav-mobile-links {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  overflow-y: auto;
-  padding-right: 0.25rem;
-  min-height: 0;
+.nav-menu-toggle[aria-expanded='true'] .nav-hamburger span:nth-child(2) {
+  opacity: 0;
+  transform: translateX(-6px);
 }
 
-.nav-mobile-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+.nav-menu-toggle[aria-expanded='true'] .nav-hamburger span:nth-child(3) {
+  top: 6px;
+  transform: rotate(-45deg);
+}
+
+/* Painel mobile: dropdown em fluxo (não modal/overlay), revelado por clip-path
+   como uma cortina, com cada item entrando em cascata via --i — mesma animação
+   da referência (ver reference/assets/styles/index.css, bloco @media max-width:1024px). */
+.nav-mobile-menu {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .nav-mobile-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-paper);
+    border-bottom: 1px solid rgba(var(--theme-text-rgb), 0.14);
+    box-shadow: 0 18px 40px rgba(31, 45, 22, 0.16);
+    padding: 0.5rem clamp(1.25rem, 4.5vw, 3.2rem) 1.2rem;
+    transform-origin: top center;
+    clip-path: inset(0 0 100% 0);
+    opacity: 0;
+    visibility: hidden;
+    transition: clip-path 450ms cubic-bezier(0.65, 0, 0.35, 1), opacity 300ms ease, visibility 0s linear 450ms;
+  }
+
+  .nav-mobile-menu.open {
+    clip-path: inset(0 0 0% 0);
+    opacity: 1;
+    visibility: visible;
+    transition: clip-path 450ms cubic-bezier(0.65, 0, 0.35, 1), opacity 300ms ease;
+  }
+
+  .nav-mobile-menu-item {
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 350ms ease, transform 350ms ease;
+    transition-delay: 0s;
+  }
+
+  .nav-mobile-menu.open .nav-mobile-menu-item {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: calc(var(--i) * 45ms + 80ms);
+  }
+
+  .nav-menu-toggle {
+    display: inline-flex;
+  }
+
+  .nav-mobile-menu-item--cta {
+    display: block;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .nav-mobile-menu-item--cta {
+    display: none;
+  }
 }
 
 .nav-mobile-link {
-  color: var(--color-paper);
-  padding: 0.55rem 0.6rem;
-  border-radius: 10px;
+  width: 100%;
+  padding: 0.9rem 0.7rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  border-radius: 0.8rem;
+  color: var(--color-deep);
   font-weight: 600;
-  transition: background 160ms ease, color 160ms ease;
+  transition: background 250ms ease, color 250ms ease;
 }
 
 .nav-mobile-link:hover {
-  background: rgba(var(--theme-primary-rgb), 0.18);
-  color: #fff;
+  background: rgba(var(--theme-primary-rgb), 0.1);
 }
 
 .nav-mobile-link--child {
   font-weight: 500;
-  opacity: 0.9;
+  opacity: 0.85;
   padding-left: 1.2rem;
 }
 
@@ -357,22 +436,44 @@ picture {
   margin-bottom: 0.25rem;
 }
 
+.nav-mobile-menu-item--cta {
+  display: none;
+}
+
 .nav-mobile-cta {
-  margin-top: 0.75rem;
-  width: 100%;
+  border-top: none !important;
   justify-content: center;
+  width: 100%;
+  margin-top: 0.6rem;
 }
 
 .nav-link {
-  font-weight: 600;
-  color: var(--color-paper);
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(var(--theme-text-rgb), 0.72);
   padding: 0.35rem 0.65rem;
   border-radius: var(--radius-s);
   transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
 }
 
 .nav-link:hover {
-  color: var(--color-terracotta);
+  color: var(--color-deep);
+}
+
+.nav-shell .btn-outline {
+  border-color: #647651;
+  color: #647651;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.82rem;
+  border-radius: 999px;
+}
+
+.nav-shell .btn-outline:hover {
+  background: rgba(100, 118, 81, 0.12);
+  border-color: #647651;
+  color: #647651;
 }
 
 .nav-link.active {
@@ -401,7 +502,7 @@ picture {
 
 .nav-caret {
   border: 1px solid var(--color-terracotta);
-  background: var(--color-deep);
+  background: transparent;
   color: var(--color-terracotta);
   border-radius: 10px;
   padding: 0.15rem 0.4rem;
@@ -457,13 +558,15 @@ picture {
   border: 1px solid rgba(var(--theme-primary-rgb), 0.16);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .nav-links--desktop {
     display: none;
   }
+}
 
-  .nav-menu-toggle {
-    display: inline-flex;
+@media (max-width: 640px) {
+  .nav-cta .btn-outline {
+    display: none;
   }
 }
 
@@ -991,7 +1094,10 @@ picture {
 }
 
 .footer {
-  background: var(--color-deep);
+  /* Oliva (#647651) é uma 5a cor exclusiva desta identidade visual, fora dos
+     4 slots do tema (background/text/primary/accent) — ver .section-process
+     em public.css e a nota em server/src/prisma/seed.ts. */
+  background: #647651;
   color: #f7f2ea;
   padding: var(--space-6) 0 var(--space-5);
   margin-top: 0;
@@ -1241,116 +1347,128 @@ picture {
   box-shadow: 0 0 0 3px rgba(var(--theme-accent-rgb), 0.12);
 }
 
-.brand-footer {
-  background: var(--color-deep);
-  color: #f7f2ea;
-  padding: 2.5rem 0 2rem;
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  align-items: flex-start;
+  text-align: left;
 }
 
-.footer-nav-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem 1.5rem;
-  justify-items: center;
+.footer-col h4 {
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 700;
+  font-weight: 600;
   color: #f7f2ea;
-  margin-bottom: 1.25rem;
+  margin: 0 0 0.2rem;
 }
 
-.footer-column {
-  display: grid;
+.footer-nav-group {
+  display: flex;
+  flex-direction: column;
   gap: 0.35rem;
-  justify-items: center;
-  text-align: center;
 }
 
 .footer-sub-links {
   display: grid;
   gap: 0.25rem;
-  text-transform: none;
-  letter-spacing: normal;
-  font-weight: 600;
+  padding-left: 0.9rem;
 }
 
 .footer-link {
-  color: #f7f2ea;
+  color: rgba(247, 242, 234, 0.85);
   text-decoration: none;
   font-size: 0.9rem;
 }
 
 .footer-link:hover {
-  color: var(--color-terracotta);
+  color: #ffffff;
+}
+
+.footer-contact-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.9rem;
+  color: rgba(247, 242, 234, 0.85);
 }
 
 .footer-divider {
-  border-top: 2px solid var(--color-terracotta);
+  border-top: 2px solid rgba(247, 242, 234, 0.25);
   margin-bottom: 1.5rem;
 }
 
 .footer-divider.thin {
   border-top-width: 1px;
   opacity: 0.65;
-  margin-top: 1.5rem;
+  margin-top: 0.5rem;
 }
 
 .footer-grid {
   display: grid;
-  gap: 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
+  grid-template-columns: 1.3fr 1fr 1fr;
   align-items: start;
   justify-items: start;
   color: #f7f2ea;
+  padding-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 700px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .footer-brand {
   display: flex;
+  align-items: flex-start;
+}
+
+.footer-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.footer-title {
+  color: #FCF3E7;
+  font-size: 1.6rem;
+  font-weight: 400;
+}
+
+.footer-brand-row {
+  display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.6rem;
+}
+
+.footer-brand-icon {
+  width: 28px;
+  height: auto;
+  flex: 0 0 auto;
+  color: #FCF3E7;
+}
+
+.footer-blurb {
+  font-size: 0.9rem;
+  color: rgba(247, 242, 234, 0.8);
+  max-width: 32ch;
+  margin: 0;
 }
 
 .footer-brand-text .muted {
   color: rgba(247, 242, 234, 0.8);
 }
 
-.footer-social-list {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-}
-
-.footer-socials {
-  justify-self: start;
-  text-align: left;
-  display: grid;
-  gap: 0.5rem;
-}
-
-.footer-contact .muted {
-  color: rgba(247, 242, 234, 0.75);
-}
-
 .footer-bottom {
   display: flex;
   justify-content: center;
-  color: rgba(247, 242, 234, 0.75);
-  font-size: 0.95rem;
-  padding-top: 0.5rem;
+  color: rgba(247, 242, 234, 0.7);
+  font-size: 0.85rem;
   text-align: center;
-
-  :root {
-    --editor-topbar-gap: 10px;
-  }
-}
-
-.footer-email {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  justify-content: flex-end;
 }
 
 .article-grid {
@@ -2333,16 +2451,39 @@ picture {
     grid-row: auto !important;
   }
   
-  /* Garantir que nenhum bloco ultrapasse a largura do container */
+  /* Garantir que nenhum bloco ultrapasse a largura do container.
+     .page-public-image fica de fora do overflow-x:hidden abaixo — ela tem
+     decorações propositalmente vazando pra fora da caixa (o selo/flor da
+     "Sobre" e a flor+borboleta do "Contato"), e overflow-x:hidden sozinho
+     (sem overflow-y correspondente) faz o browser promover overflow-y pra
+     "auto" por spec, o que tanto cria uma barra de scroll vertical quanto,
+     se a gente tenta neutralizar travando overflow-y:hidden também, corta
+     essas decorações. Sem overflow-x aqui não há promoção nem corte — o
+     body{overflow-x:hidden} global já garante que nada disso escapa pra
+     fora da página. */
   .page-public-block,
   .page-public-text,
-  .page-public-image,
   .page-public-button-wrapper,
   .contact-info-block {
     max-width: 100% !important;
     overflow-x: hidden;
   }
-  
+
+  .page-public-image {
+    max-width: 100% !important;
+  }
+
+  /* Mesmo problema um nível acima: .page-public-block (o wrapper direto do
+     .page-public-image) também tinha só overflow-x:hidden, então a mesma
+     promoção pra overflow-y:auto cortava a ponta das decorações que vazam
+     pra fora da imagem (a flor de "Contato" vazando pra cima, por exemplo,
+     ficava com a ponta cortada pelo bloco-pai mesmo já corrigido na própria
+     imagem). */
+  .section-sobre .page-public-block,
+  .section-contato .page-public-block {
+    overflow: visible;
+  }
+
   /* Container com padding horizontal adequado */
   
   /* Reduzir gap entre blocos */
@@ -2738,6 +2879,15 @@ picture {
   box-shadow: 0 8px 24px rgba(31, 45, 22, 0.12);
 }
 
+.page-public-image-caption {
+  margin-top: 0.75rem;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--color-olive);
+  text-align: center;
+}
+
 .page-public-image.rte-image--size-25 {
   max-width: 25%;
 }
@@ -2840,6 +2990,74 @@ figure.page-public-image figcaption {
   font-weight: 700;
   color: inherit;
   margin: 0 0 1rem 0;
+}
+
+/* Base genérica dos links de redes sociais — as variantes abaixo (list/chips/
+   buttons/icons) só definiam ajustes pontuais, sem nunca definir o layout
+   base (flex/gap) nem o estilo do variant "icons", deixando-o sem estilo
+   nenhum (ex.: bloco contact-info com socialLinksVariant: 'icons'). */
+.social-links-list,
+.social-links-chips,
+.social-links-buttons,
+.social-links-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.social-links-icons {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.social-link--icons {
+  flex: 1 1 190px;
+  background: var(--color-paper);
+  border-radius: 1.1rem;
+  padding: 1.1rem 1.2rem;
+  box-shadow: 0 8px 18px -14px rgba(31, 45, 22, 0.35);
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.social-link--icons:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px -18px rgba(31, 45, 22, 0.4);
+}
+
+.social-link--icons .social-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-shell);
+  color: var(--color-terracotta);
+  font-size: 1.05rem;
+}
+
+.social-link--icons .social-label {
+  display: block;
+  font-weight: 600;
+  color: var(--color-deep);
+  font-size: 0.92rem;
+}
+
+.social-link--icons .social-description {
+  font-size: 0.85rem;
+  opacity: 0.85;
 }
 
 .social-link--list .social-icon {
@@ -3070,12 +3288,21 @@ figure.page-public-image figcaption {
 }
 
 .card-icon {
-  min-width: 48px;
-  min-height: 48px;
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  min-height: 50px;
+  border-radius: 50%;
+  background: #E8C0C9;
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 0.25rem;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+}
+
+.card-icon-fa {
+  font-size: 1.3rem;
+  color: var(--color-terracotta);
 }
 
 .card-icon-emoji {
@@ -3256,6 +3483,136 @@ figure.page-public-image figcaption {
   :root {
     --section-padding: clamp(1rem, 2.5vw, 1.5rem);
   }
+}
+
+.page-public-faq {
+  padding: var(--section-padding);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  color: inherit;
+  margin: 0 0 clamp(0.5rem, 1.5vw, 1rem) 0;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.faq-subtitle {
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  color: inherit;
+  opacity: 0.8;
+  margin: 0 0 clamp(2rem, 4vw, 3rem) 0;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.faq-item {
+  background: var(--section-surface);
+  border: 1px solid var(--section-border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow 200ms ease;
+}
+
+.faq-item.is-open {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: clamp(1rem, 1.8vw, 1.0625rem);
+  font-weight: 600;
+  color: var(--color-deep);
+  text-align: left;
+}
+
+.faq-plus {
+  position: relative;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+.faq-plus::before,
+.faq-plus::after {
+  content: '';
+  position: absolute;
+  background: var(--color-terracotta);
+  transition: transform 200ms ease;
+}
+
+.faq-plus::before {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  transform: translateY(-50%);
+}
+
+.faq-plus::after {
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.faq-item.is-open .faq-plus::after {
+  transform: translateX(-50%) rotate(90deg);
+  opacity: 0;
+}
+
+/* Animação de abrir/fechar: grid-template-rows 0fr->1fr anima a altura até
+   "auto" sem precisar medir com JS, e overflow:hidden no filho corta o
+   conteúdo enquanto ele cresce/encolhe. */
+.faq-answer-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 280ms ease;
+}
+
+.faq-item.is-open .faq-answer-wrap {
+  grid-template-rows: 1fr;
+}
+
+.faq-answer-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.faq-answer {
+  margin: 0;
+  padding: 0 1.5rem 1.25rem 1.5rem;
+  color: var(--color-olive);
+  line-height: 1.6;
+  font-size: 0.9375rem;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.faq-item.is-open .faq-answer {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 280ms ease 60ms, transform 280ms ease 60ms;
 }
 
 .page-public-form {
@@ -3896,6 +4253,16 @@ h1, h2, h3, h4, h5, h6, strong, .heading, .nav-brand-name, .page-title {
   font-family: var(--font-heading, Georgia, serif);
 }
 
+/* Duplicidade de cores nos títulos: trechos em <em> (ex.: "forte demais" no
+   hero, "comigo" no contato) ganham a cor de destaque em vez de herdar a cor
+   base do título — igual à referência (regra global `em{}` em index.css). */
+em {
+  font-style: italic;
+  font-family: var(--font-heading, Georgia, serif);
+  color: var(--color-terracotta);
+  font-weight: 500;
+}
+
 body, p, span, .body-text, .text {
   font-family: var(--font-body, system-ui, sans-serif);
 }
@@ -3968,6 +4335,37 @@ body, p, span, .body-text, .text {
 .hero-media-column {
   display: flex;
   min-width: 0;
+  position: relative;
+}
+
+.hero-floating-badge {
+  position: absolute;
+  z-index: 3;
+  left: 6%;
+  top: 8%;
+  max-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: #FCF3E7;
+  border-radius: 1.1rem;
+  padding: 0.9rem 1.1rem;
+  box-shadow: 0 10px 24px -14px rgba(112, 69, 18, 0.28);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: rgba(112, 69, 18, 0.85);
+}
+
+.hero-floating-badge-icon {
+  flex: 0 0 auto;
+  font-size: 1.4rem;
+  color: #7F2A4D;
+}
+
+@media (max-width: 860px) {
+  .hero-floating-badge {
+    display: none;
+  }
 }
 
 .hero-media-column .hero-media {
@@ -4050,4 +4448,899 @@ body, p, span, .body-text, .text {
   .block-bg-wrapper--form {
     border-radius: 16px;
   }
+}
+
+/* =====================================================================
+   Réplica visual da referência (reference/) para este site específico.
+   Nada aqui é genérico do template — é tudo escopado pelas classes
+   `customClass` das seções da Home (settings.customClass, ver
+   client/src/types/layout.ts e PageRenderer.tsx) e pelos componentes
+   TagMarquee.tsx / seed.ts. Paleta exata da referência:
+   creme #FCF3E7, blush #E8C0C9, oliva #647651, marrom #704512,
+   ocre #B96F28, bordô #7F2A4D.
+   ===================================================================== */
+
+@font-face {
+  font-family: 'StarsLove';
+  src: url('/fonts/StarsLove.ttf') format('truetype');
+  font-display: swap;
+}
+
+.brand-script {
+  font-family: 'StarsLove', cursive;
+}
+
+.tag-marquee {
+  overflow: hidden;
+  width: 100%;
+  background: #FCF3E7;
+  border-top: 1px solid rgba(112, 69, 18, 0.16);
+  border-bottom: 1px solid rgba(112, 69, 18, 0.16);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+
+.tag-marquee-track {
+  display: flex;
+  flex: 0 0 auto;
+  width: max-content;
+  gap: 0;
+  padding: 1.2rem 0;
+  animation: tag-marquee-scroll 26s linear infinite;
+}
+
+.tag-marquee:hover .tag-marquee-track {
+  animation-play-state: paused;
+}
+
+.tag-marquee-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0 1.6rem;
+  white-space: nowrap;
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+  color: rgba(112, 69, 18, 0.72);
+  border-right: 1px solid rgba(112, 69, 18, 0.16);
+}
+
+.tag-marquee-item svg {
+  width: 16px;
+  height: 16px;
+  color: var(--color-terracotta);
+  flex: 0 0 auto;
+}
+
+@keyframes tag-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-33.3333%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tag-marquee-track {
+    animation: none;
+  }
+}
+
+/* --- Flores decorativas por seção (posições exatas da referência) ---
+   overflow:visible (não hidden, diferente da referência) por pedido: a flor
+   deve sempre aparecer no tamanho cheio, mesmo vazando pra seção vizinha,
+   em vez de ser cortada na borda da section. */
+.section-hero,
+.section-sobre,
+.section-signs,
+.section-personas,
+.section-process,
+.section-faq,
+.section-contato {
+  position: relative;
+  overflow: visible;
+}
+
+.section-hero::before,
+.section-hero::after,
+.section-sobre::before,
+.section-sobre::after,
+.section-signs::before,
+.section-signs::after,
+.section-personas::before,
+.section-personas::after,
+.section-process::before,
+.section-process::after,
+.section-faq::before,
+.section-faq::after,
+.section-contato::before,
+.section-contato::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  /* mask (não background-image) porque flower.svg tem a cor bordô cravada no
+     arquivo — numa seção de fundo bordô/oliva (section-signs/process/faq)
+     isso pintava bordô sobre bordô e a flor ficava invisível. Com mask, quem
+     define a cor é o background-color abaixo, e cada seção escura pode pintar
+     creme. */
+  mask-image: url('/decor/flower.svg');
+  -webkit-mask-image: url('/decor/flower.svg');
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-size: contain;
+  background-color: #7F2A4D;
+  aspect-ratio: 1552 / 1776;
+}
+
+.section-signs::before,
+.section-signs::after,
+.section-process::before,
+.section-process::after,
+.section-faq::before,
+.section-faq::after {
+  background-color: #FCF3E7;
+}
+
+.page-public-section > .container,
+.page-public-section > .container--flush {
+  position: relative;
+  z-index: 1;
+}
+
+.section-hero::before { top: -6%; right: -1%; width: 220px; transform: rotate(22deg); opacity: .06; }
+.section-hero::after  { bottom: -4%; left: -1%; width: 160px; transform: rotate(-18deg); opacity: .08; }
+
+.section-sobre::before { top: 4%; right: 0; width: 190px; transform: rotate(14deg); opacity: .07; }
+.section-sobre::after  { bottom: -3%; left: 3%; width: 120px; transform: rotate(-26deg); opacity: .06; }
+
+.section-signs::before { top: -4%; left: -1%; width: 230px; transform: rotate(-16deg); opacity: .1; }
+.section-signs::after  { bottom: 0; right: 1%; width: 170px; transform: rotate(32deg); opacity: .09; }
+
+.section-personas::before { top: 2%; right: -1%; width: 210px; transform: rotate(19deg); opacity: .07; }
+.section-personas::after  { bottom: 4%; left: 1%; width: 140px; transform: rotate(-14deg); opacity: .06; }
+
+.section-process::before { top: 6%; right: 0; width: 160px; transform: rotate(24deg); opacity: .09; }
+.section-process::after  { bottom: -5%; left: -1%; width: 220px; transform: rotate(-11deg); opacity: .11; }
+
+.section-faq::before { top: 7%; left: 0; width: 180px; transform: rotate(-22deg); opacity: .1; }
+.section-faq::after  { bottom: 3%; right: 1%; width: 210px; transform: rotate(17deg); opacity: .09; }
+
+.section-contato::before { top: 3%; right: 0; width: 180px; transform: rotate(21deg); opacity: .07; }
+.section-contato::after  { bottom: 6%; left: 1%; width: 140px; transform: rotate(-28deg); opacity: .06; }
+
+/* --- Divisores em onda entre seções (cor exata de transição) --- */
+.section-wave {
+  height: 48px;
+  padding: 0 !important;
+  overflow: visible;
+}
+
+.section-wave .container,
+.section-wave .page-public-grid {
+  display: none;
+}
+
+.section-wave::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  mask-image: url('/decor/wave.svg');
+  -webkit-mask-image: url('/decor/wave.svg');
+  /* wave.svg é 1 ciclo de onda em 1440px (4 "montes" de 360px) — repetindo em
+     vez de esticar a 100%, o comprimento de onda fica constante em qualquer
+     largura de tela, e dá pra animar a posição num loop perfeitamente contínuo. */
+  mask-size: 720px 100%;
+  -webkit-mask-size: 720px 100%;
+  mask-repeat: repeat-x;
+  -webkit-mask-repeat: repeat-x;
+  animation: wave-flow 16s linear infinite;
+}
+
+@keyframes wave-flow {
+  from {
+    mask-position: 0 0;
+    -webkit-mask-position: 0 0;
+  }
+  to {
+    mask-position: -720px 0;
+    -webkit-mask-position: -720px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-wave::before {
+    animation: none;
+  }
+}
+
+/* Qualificadas com .section-wave (sempre presente) pra empatar em
+   especificidade com .page-public-section.section-bg-none (2 classes) e
+   vencer por ordem de declaração — sem isso o fundo sólido da seção (contra
+   o qual a máscara da onda recorta a curva) fica transparente, e a onda
+   "some" (as duas metades da máscara acabam com a mesma cor de fundo). */
+.section-wave.wave-cream-burgundy { background-color: #FCF3E7; }
+.wave-cream-burgundy::before { background-color: #7F2A4D; }
+
+.section-wave.wave-burgundy-cream { background-color: #7F2A4D; }
+.wave-burgundy-cream::before { background-color: #FCF3E7; }
+
+.section-wave.wave-cream-olive { background-color: #FCF3E7; }
+.wave-cream-olive::before { background-color: #647651; }
+
+.section-wave.wave-olive-burgundy { background-color: #647651; }
+.wave-olive-burgundy::before { background-color: #7F2A4D; }
+
+/* --- Seções com fundo sólido bordô/oliva (backgroundMode:'color' pintado
+   direto na <section>, sem o "cartão" boxado que .section-bg-earthy criava
+   — a cor deve cobrir a seção inteira, não só a grid interna) --- */
+.section-process,
+.section-signs,
+.section-faq {
+  --section-fg: #FCF3E7;
+  --section-surface: #FCF3E7;
+  color: var(--section-fg);
+}
+
+.section-process h1,
+.section-process h2,
+.section-process h3,
+.section-process p,
+.section-process label,
+.section-signs h1,
+.section-signs h2,
+.section-signs h3,
+.section-signs p,
+.section-signs label,
+.section-faq h1,
+.section-faq h2,
+.section-faq h3,
+.section-faq p,
+.section-faq label {
+  color: var(--section-fg);
+}
+
+/* Referência: .process-copy h2{font-size:clamp(1.9rem,3.4vw,2.6rem)} — maior
+   que o clamp genérico de .page-public-text (pensado pra corpo de texto, não
+   pra título de seção) — e .process-copy p{margin:1.1rem 0 1.8rem}, que dá o
+   respiro entre título/parágrafo/botão que o row-gap:0 do grid genérico de
+   colunas não fornece (cada bloco de texto é independente, sem gap entre si). */
+.section-process .page-public-text .rich-content h2 {
+  font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+  line-height: 1.14;
+  /* Referência não define font-weight/letter-spacing próprios pro h2 (herda
+     a base h1..h4{font-weight:600}) — a regra genérica de .rich-content h2
+     usa 700 + letter-spacing negativo (pensada pro corpo de texto comum),
+     o que ficava mais grosso/apertado que a referência aqui. */
+  font-weight: 600;
+  letter-spacing: normal;
+  /* Referência: h2{margin-bottom:0} — o respiro até o parágrafo vem só do
+     p{margin-top:1.1rem} abaixo. A regra genérica de .rich-content h2 dá
+     margin-bottom:0.6rem, que somava com o margin-top do parágrafo e
+     dobrava o espaço. */
+  margin-bottom: 0;
+}
+
+.section-process .page-public-text .rich-content p {
+  margin: 1.1rem 0 1.8rem 0;
+  max-width: 40ch;
+  /* Referência: body{line-height:1.7} e p{color:rgba(cream,.85)} — a regra
+     genérica de .rich-content p usa 1.8 e cor cheia (sem transparência). */
+  line-height: 1.7;
+  color: rgba(252, 243, 231, 0.85);
+}
+
+.section-process .span-eyebrow {
+  margin-bottom: 1.2rem;
+}
+
+/* variant:'secondary' do buttonGroup vira .btn-outline no renderer (não
+   existe .btn-secondary) — o seletor abaixo mirava a classe errada e nunca
+   aplicava, deixando o botão com o outline genérico (transparente, borda
+   olive) em vez do .btn-cream sólido da referência. Tamanho/padding/radius
+   também vêm do .btn genérico do CMS (pensado pros botões maiores do resto
+   do site), bem maior que o .btn compacto da referência. */
+.section-process .btn-outline {
+  background: #FCF3E7;
+  border-color: transparent;
+  border-radius: 999px;
+  color: #647651;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.4rem 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.section-process .btn-outline:hover {
+  background: #ffffff;
+  border-color: transparent;
+  color: #647651;
+  transform: translateY(-3px);
+}
+
+/* .section-signs (earthy) e .section-process (h1..p em creme) pintam todo
+   h3/p da seção com a cor de fundo do texto — inclusive os títulos/textos dos
+   cards, que aqui usam cardColor customizado igualmente claro (creme), o que
+   apagava o texto (creme sobre creme). Restaura a cor pretendida do card. */
+.section-signs .card-item .card-title,
+.section-process .card-item .card-title {
+  color: var(--card-title-color, var(--color-deep));
+}
+
+.section-signs .card-item .card-text,
+.section-process .card-item .card-text {
+  color: var(--card-text-color, var(--color-olive));
+}
+
+/* Referência: .sign-card h3{font-size:1.12rem} / p{font-size:.92rem} — bem
+   menores que o clamp genérico de .card-title/.card-text (pensado pra cards
+   maiores em outras seções), o que deixava os sinais de alerta com fonte
+   maior do que a referência. */
+.section-signs .card-item .card-title {
+  font-size: 1.12rem;
+}
+
+.section-signs .card-item .card-text {
+  font-size: 0.92rem;
+}
+
+/* Referência: .section-head{max-width:640px} centraliza e quebra o título em
+   2 linhas — sem isso o texto some correndo em 1 linha só, "maior" do que
+   deveria. .em fica invisível (burgundy sobre burgundy) sem a cor ochre. */
+.section-signs .cards-title {
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-signs .cards-title em {
+  color: var(--color-clay);
+  font-style: italic;
+}
+
+/* Grade de cards mais estreita que o container da seção, como na referência
+   (.signs-grid{max-width:980px}) — sem isso os cards ficam maiores/mais
+   largos do que deveriam. */
+.section-signs .cards-grid {
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* --- Passos numerados da seção "Processo" (lista vertical com badge
+   circular numerado, como na referência), em vez do grid genérico de cards --- */
+.section-process .cards-grid {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* Referência: .process-step{display:flex} com o número ao lado de um <div>
+   que empilha h4 acima de p. Nosso card-item não tem esse <div> agrupando
+   título+texto (são irmãos diretos do ícone), então flex-row jogava os 3
+   lado a lado. Grid resolve: ícone ocupa a 1ª coluna nas 2 linhas, título e
+   texto ficam na 2ª coluna, um embaixo do outro. */
+.section-process .card-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1.2rem;
+  row-gap: 0.3rem;
+  align-items: start;
+  padding: 1.4rem 1.6rem;
+}
+
+.section-process .card-icon {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  border-radius: 50%;
+  background: #E8C0C9;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+.section-process .card-icon-emoji {
+  gap: 0;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #7F2A4D;
+}
+
+.section-process .card-title {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.section-process .card-text {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+/* Tamanhos da referência (.process-step h4{font-size:1.02rem} /
+   p{font-size:.9rem}) — bem menores que o clamp genérico de
+   .card-title/.card-text, pensado para cards maiores em outras seções. */
+.section-process .card-item .card-title {
+  font-size: 1.02rem;
+}
+
+.section-process .card-item .card-text {
+  font-size: 0.9rem;
+}
+
+/* No mobile, .page-public-grid vira 1 coluna e cada bloco fica
+   grid-row:auto — a ordem visual passa a seguir a ordem no DOM. O layout
+   genérico de 2 colunas intercala os blocos por linha (coluna 1 e coluna 2
+   no mesmo índice de linha ficam adjacentes no HTML): como a coluna 2 só
+   tem o bloco "cards" (índice de linha 0, igual ao eyebrow da coluna 1), o
+   DOM sai eyebrow → cards → título → descrição → botão. Sem isso, o card
+   aparece antes do título/descrição no mobile. */
+@media (max-width: 768px) {
+  .section-process .page-public-grid > .page-public-block:nth-child(1) {
+    order: 1;
+  }
+
+  .section-process .page-public-grid > .page-public-block:nth-child(2) {
+    order: 4;
+  }
+
+  .section-process .page-public-grid > .page-public-block:nth-child(3) {
+    order: 2;
+  }
+
+  .section-process .page-public-grid > .page-public-block:nth-child(4) {
+    order: 3;
+  }
+
+  .section-process .page-public-grid > .page-public-block:nth-child(5) {
+    order: 5;
+  }
+}
+
+/* --- Banner "Atendimento 100% Online" (cta block) na seção Personas ---
+   Referência: .hybrid-banner{text-align:center} e h3 em itálico serifado
+   (sem o negrito/alinhamento à esquerda do cta-block genérico usado nas
+   outras seções, pensado para o layout com imagem ao lado). */
+.section-personas .cta-block {
+  --cta-surface: #647651;
+  display: block;
+  text-align: center;
+  box-shadow: none;
+}
+
+/* .section-title (global) tem max-width:780px sem margin auto — pensado pra
+   layouts alinhados à esquerda. Em telas largas, quando o banner passa dos
+   780px, a caixa de título+texto ficava encostada à esquerda do cta-content
+   em vez de centralizada, mesmo com text-align:center (que só centraliza o
+   texto DENTRO da caixa, não a caixa em si). */
+.section-personas .cta-block .section-title {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-personas .cta-block .cta-content h2 {
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+
+.section-personas .cta-block .cta-content p {
+  font-size: 0.95rem;
+}
+
+.section-personas .cta-block .cta-content p em {
+  font-style: normal;
+  font-weight: 500;
+  color: inherit;
+}
+
+/* --- Cards "Para quem é o atendimento" (persona-card): título quebra em
+   2 linhas como na referência (.section-head{max-width:640px}), e cada
+   card usa o ícone circular sobrepondo a borda superior, texto alinhado à
+   esquerda e fundo creme translúcido — bem diferente do grid genérico de
+   cards centralizados usado nas demais seções. */
+.section-personas .cards-title {
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* .cards-grid encadeado no seletor pra empatar/superar a especificidade de
+   .cards-grid.cards-variant--simple .card-item (border/box-shadow do
+   variant genérico), que senão vencia por ter mais classes que
+   .section-personas .card-item sozinho. */
+.section-personas .cards-grid .card-item {
+  position: relative;
+  text-align: left;
+  padding: 3rem 1.9rem 2rem;
+  border: 1.5px solid rgba(112, 69, 18, 0.18);
+  border-radius: 1.25rem;
+  background: rgba(252, 243, 231, 0.55);
+  box-shadow: none;
+  transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), border-color 0.3s ease, box-shadow 0.4s ease;
+}
+
+.section-personas .cards-grid .card-item:hover {
+  transform: translateY(-6px);
+  border-color: rgba(127, 42, 77, 0.35);
+  box-shadow: 0 10px 24px -14px rgba(112, 69, 18, 0.28);
+}
+
+.section-personas .card-icon {
+  position: absolute;
+  top: 0;
+  left: 1.7rem;
+  transform: translateY(-50%);
+  width: 72px;
+  height: 72px;
+  min-width: 72px;
+  min-height: 72px;
+  border: 1px solid rgba(112, 69, 18, 0.16);
+  box-shadow: 0 8px 18px -14px rgba(112, 69, 18, 0.35);
+  margin-bottom: 0;
+}
+
+.section-personas .card-icon-fa {
+  color: #647651;
+  font-size: 1.45rem;
+}
+
+.section-personas .card-item .card-title {
+  color: #704512;
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+}
+
+.section-personas .card-item .card-text {
+  color: rgba(112, 69, 18, 0.72);
+  font-size: 0.96rem;
+  max-width: 28ch;
+}
+
+/* --- FAQ sobre fundo bordô (caixas translúcidas + texto claro) --- */
+.section-faq .faq-item {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.section-faq .faq-question {
+  color: inherit;
+}
+
+.section-faq .faq-answer {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.section-faq .faq-plus::before,
+.section-faq .faq-plus::after {
+  background: currentColor;
+}
+
+/* --- Hero: a imagem deve ficar contida/arredondada com respiro ao redor
+   (como na referência), não esticada full-bleed dentro do "cartão" genérico
+   do template --- */
+.section-hero .hero.hero--v2 {
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+/* .hero::before é o glow desfocado do cartão genérico (outras variantes de
+   hero) — a referência não tem esse brilho atrás do texto, e ele ainda
+   batia aqui porque a seletor genérico `.hero` casa com `hero--v2` também. */
+.section-hero .hero.hero--v2::before {
+  content: none;
+}
+
+.section-hero .hero-body--split {
+  align-items: center;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: clamp(2rem, 5vw, 3.5rem);
+}
+
+.section-hero .hero-content--split {
+  padding: clamp(1.5rem, 3vw, 2.5rem) 0;
+}
+
+/* Tamanhos exatos da referência: h1 clamp(2rem,4vw,3rem) e parágrafo com
+   max-width:44ch — o genérico .page-public-text usa um teto menor (2.75rem)
+   e sem limite de largura, o que faz o hero parecer "maior" que a referência
+   em telas largas. */
+.section-hero .page-public-text .rich-content h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.section-hero .page-public-text .rich-content p {
+  max-width: 44ch;
+}
+
+.section-hero .hero-media-column {
+  position: relative;
+  padding: 1rem;
+  align-items: flex-start;
+}
+
+/* Florzinha decorativa (petal.svg) flutuando no canto inferior esquerdo da
+   foto, com leve giro animado no hover — extraída 1:1 da referência. */
+.section-hero .hero-media-column::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  bottom: 3%;
+  left: -4%;
+  width: 76px;
+  height: 76px;
+  background-image: url('/decor/petal.svg');
+  background-repeat: no-repeat;
+  background-size: contain;
+  filter: drop-shadow(0 10px 16px rgba(112, 69, 18, 0.24));
+  transform: rotate(-12deg);
+  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  pointer-events: none;
+}
+
+.section-hero .hero-media-column:hover::after {
+  transform: rotate(-4deg) scale(1.05);
+}
+
+.section-hero .hero-media-column .hero-media {
+  position: relative;
+  z-index: 1;
+  /* Sem o padding de mat da referência (que reservava espaço pro grid de
+     bolinhas atrás de uma foto-colagem) — nossa foto é um retrato comum,
+     então ocupa toda a coluna em vez de ficar encolhida/deslocada. */
+  width: 100%;
+  margin-left: 0;
+  aspect-ratio: 4 / 5;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  border-radius: 2rem;
+  box-shadow: none;
+}
+
+@media (max-width: 860px) {
+  .section-hero .hero-body--split {
+    grid-template-columns: 1fr;
+  }
+
+  /* Referência: .hero-visual{max-width:340px;margin:0 auto} no mobile — a
+     foto não deve ocupar a largura cheia da tela (o que a deixava enorme,
+     empurrando o resto do conteúdo pra muito mais scroll do que deveria). */
+  .section-hero .hero-media-column .hero-media {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+}
+
+/* Eyebrow do hero: um traço horizontal antes do texto, sem fundo em pill
+   (diferente do selo usado nas demais seções) — igual a .eyebrow-with-mark
+   na referência. */
+.section-hero .span-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: transparent;
+  color: var(--color-deep);
+  padding: 0;
+  border-radius: 0;
+  margin-bottom: 0;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.section-hero .span-eyebrow::before {
+  content: '';
+  width: 1.9rem;
+  height: 1px;
+  background: currentColor;
+  flex: 0 0 auto;
+  opacity: 0.9;
+}
+
+.section-hero .hero-actions .btn {
+  border-radius: 999px;
+  padding: 1rem;
+  font-size: 0.92rem;
+  box-shadow: none;
+}
+
+.section-hero .hero-actions .btn:hover {
+  box-shadow: none;
+}
+
+/* --- Molduras fotográficas (papel torn/dashed-frame da referência) --- */
+/* !important necessário: a regra base .page-public-image (acima) zera
+   border/padding/background com !important para limpar estilos herdados
+   do editor — sem !important aqui essa moldura nunca aparece. */
+.section-sobre .page-public-image {
+  /* !important necessário: a regra genérica de mobile
+     (.page-public-image.rte-image--size-100{max-width:100% !important})
+     senão vence e a foto volta a ocupar a largura cheia da tela. */
+  max-width: 380px !important;
+  margin: 0 auto;
+  padding: 14px !important;
+  border: 1.5px dashed rgba(112, 69, 18, 0.55) !important;
+  border-radius: 1.9rem;
+  transform: rotate(-2deg);
+}
+
+.section-sobre .page-public-image img {
+  aspect-ratio: 3 / 3.3;
+  object-fit: cover;
+  border-radius: 1.6rem;
+  box-shadow: 0 28px 60px -24px rgba(112, 69, 18, 0.32);
+}
+
+.section-sobre .page-public-image-caption {
+  position: absolute;
+  z-index: 2;
+  bottom: -1.2rem;
+  right: 0.6rem;
+  left: auto;
+  max-width: 190px;
+  background: #FCF3E7;
+  border-radius: 1.2rem;
+  padding: 1rem 1.3rem;
+  box-shadow: 0 10px 24px -14px rgba(112, 69, 18, 0.28);
+  transform: rotate(3deg);
+  text-align: left !important;
+  margin: 0;
+  /* Referência: .about-quote-chip{font-size:.8rem} — o genérico
+     .page-public-image-caption usa .95rem (pensado pra legenda de imagem
+     de artigo, corpo de texto normal), maior do que esse "chip" pequeno
+     pede. Sem isso, o texto quebra em mais linhas e a caixa incha bem
+     além da foto, principalmente no mobile onde a foto já é pequena. */
+  font-size: 0.8rem;
+}
+
+@media (max-width: 640px) {
+  .section-sobre .page-public-image {
+    max-width: 260px !important;
+  }
+}
+
+/* Referência: h2 do "Quem estará com você?" usa o tamanho padrão do h1-h4
+   (sem o clamp maior do título de seção genérico) e a lista de credenciais
+   usa checks, não os discs padrão do navegador. */
+.section-sobre .page-public-text .rich-content h2 {
+  font-size: 1.5rem;
+}
+
+.section-sobre .page-public-text .rich-content ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.section-sobre .page-public-text .rich-content li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  font-size: 0.95rem;
+}
+
+.section-sobre .page-public-text .rich-content li::before {
+  content: '\2713';
+  flex: 0 0 auto;
+  margin-top: 0.2rem;
+  font-size: 0.9rem;
+  color: var(--color-olive);
+}
+
+.section-sobre .page-public-button {
+  border-radius: 999px;
+}
+
+.section-contato .page-public-image {
+  /* !important necessário: a regra genérica de mobile
+     (.page-public-image.rte-image--size-100{max-width:100% !important})
+     senão vence e a foto volta a ocupar a largura cheia da tela. */
+  max-width: 360px !important;
+  margin: 0 auto;
+  padding: 0.9rem 0.9rem 1.4rem;
+  background: #FCF3E7;
+  border-radius: 1rem;
+  box-shadow: 0 28px 60px -24px rgba(112, 69, 18, 0.32);
+  transform: rotate(-3deg);
+}
+
+.section-contato .page-public-image img {
+  aspect-ratio: 3 / 3.5;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  box-shadow: none;
+}
+
+/* Adesivos flutuantes (flor + borboleta) sobre a moldura da foto, como na
+   referência — SVGs próprios em client/public/decor/, extraídos 1:1 do
+   markup inline de reference/index.html. */
+.section-contato .page-public-image::before,
+.section-contato .page-public-image::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  background-repeat: no-repeat;
+  background-size: contain;
+  filter: drop-shadow(0 8px 14px rgba(112, 69, 18, 0.24));
+  pointer-events: none;
+}
+
+.section-contato .page-public-image::before {
+  top: -1.4rem;
+  right: -0.8rem;
+  width: 64px;
+  height: 64px;
+  background-image: url('/decor/contact-flower.svg');
+}
+
+.section-contato .page-public-image::after {
+  bottom: 0.8rem;
+  left: -1.6rem;
+  width: 76px;
+  height: 46px;
+  background-image: url('/decor/contact-butterfly.svg');
+  transform: rotate(-8deg);
+}
+
+@media (max-width: 900px) {
+  .section-contato .page-public-image {
+    max-width: 280px !important;
+  }
+}
+
+/* --- Eyebrow (selo pequeno acima dos títulos de seção, como na referência) --- */
+.span-eyebrow {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-paper);
+  background: var(--color-terracotta);
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  margin-bottom: 0.6rem;
+}
+
+.section-signs .span-eyebrow,
+.section-faq .span-eyebrow,
+.section-personas .span-eyebrow,
+.section-contato .span-eyebrow {
+  display: block;
+  width: fit-content;
+  margin: 0 auto 0.6rem;
+}
+
+.section-signs .span-eyebrow,
+.section-faq .span-eyebrow {
+  background: rgba(252, 243, 231, 0.16);
+  color: #FCF3E7;
+}
+
+.section-process .span-eyebrow {
+  background: rgba(252, 243, 231, 0.16);
+  color: #FCF3E7;
+}
+
+.section-personas .span-eyebrow {
+  background: transparent;
+  border: 1px solid #7F2A4D;
+  color: #7F2A4D;
+}
+
+.section-contato .span-eyebrow {
+  background: #647651;
+  color: #FCF3E7;
 }

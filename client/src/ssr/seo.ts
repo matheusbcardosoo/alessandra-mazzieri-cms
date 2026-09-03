@@ -9,6 +9,7 @@ export type SeoHeadInput = {
   /** JSON-LD adicional específico da página (ex: Article). Mesclado após o WebSite/Organization padrão. */
   extraJsonLd?: Record<string, unknown>[];
   noIndex?: boolean;
+  appendSiteName?: boolean;
 };
 
 const FALLBACK_SITE_NAME = 'Meu Site';
@@ -46,7 +47,7 @@ export function buildSeoHead(input: SeoHeadInput): string {
     0,
     300
   );
-  const title = `${input.title} | ${siteName}`;
+  const title = input.appendSiteName === false ? input.title : `${input.title} | ${siteName}`;
   const canonicalUrl = `${input.origin}${input.pathname}`;
   const ogImage = absoluteUrl(input.origin, input.siteSettings?.ogImageUrl);
 

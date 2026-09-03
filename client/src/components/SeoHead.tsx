@@ -15,7 +15,16 @@ const getCachedSiteName = () => {
   }
 };
 
-export function SeoHead({ title, description }: { title: string; description?: string }) {
+export function SeoHead({
+  title,
+  description,
+  appendSiteName = true
+}: {
+  title: string;
+  description?: string;
+  /** Home's title is written by the admin as the full `<title>` tag already — pass false to skip appending "| SiteName". */
+  appendSiteName?: boolean;
+}) {
   // Fetch site config (includes siteName, theme, etc.)
   const { data: settings } = useQuery({
     queryKey: ['site-config'],
@@ -26,7 +35,7 @@ export function SeoHead({ title, description }: { title: string; description?: s
   const siteName = settings?.siteName || getCachedSiteName() || 'Meu Site';
 
   useEffect(() => {
-    document.title = `${title} | ${siteName}`;
+    document.title = appendSiteName ? `${title} | ${siteName}` : title;
     if (description) {
       let meta = document.querySelector('meta[name="description"]');
       if (!meta) {
@@ -36,7 +45,7 @@ export function SeoHead({ title, description }: { title: string; description?: s
       }
       meta.setAttribute('content', description);
     }
-  }, [title, description, siteName]);
+  }, [title, description, siteName, appendSiteName]);
 
   return null;
 }

@@ -47,8 +47,11 @@ export function ContactInfoRenderer({ data }: BlockRendererProps<ContactInfoBloc
   const whatsappVariant = data.whatsappVariant || 'primary';
   const whatsappButtonClass = whatsappVariant === 'primary' ? 'btn btn-primary' : 'btn btn-outline';
 
+  // Sempre mostra o nome canônico da plataforma no título do card (ex.: "Instagram"),
+  // mesmo quando `social.label` foi customizado para o rodapé (ex.: "@ale.psijung") — os
+  // dois usos têm convenções diferentes: rodapé mostra o valor identificador, o card mostra
+  // a identidade da plataforma + `social.description` como subtexto.
   const getLabelForSocial = (social: SocialLink): string => {
-    if (social.label) return social.label;
     const labels: Record<string, string> = {
       instagram: 'Instagram',
       facebook: 'Facebook',
@@ -57,14 +60,14 @@ export function ContactInfoRenderer({ data }: BlockRendererProps<ContactInfoBloc
       tiktok: 'TikTok',
       x: 'X (Twitter)',
       site: 'Website',
-      email: 'Email',
+      email: 'E-mail',
       whatsapp: 'WhatsApp'
     };
     return labels[social.platform] || social.platform;
   };
 
   const getDescriptionForSocial = (social: SocialLink): string => {
-    return social.label || platformDescriptions[social.platform] || '';
+    return social.description || platformDescriptions[social.platform] || '';
   };
 
   const getIconForSocial = (platform: string) => {
@@ -83,6 +86,10 @@ export function ContactInfoRenderer({ data }: BlockRendererProps<ContactInfoBloc
   };
 
   const variant = data.socialLinksVariant || 'list';
+  // 'badge' funde o WhatsApp na mesma grade de cartões das redes sociais (ícone + título +
+  // subtexto), em vez de um botão de destaque separado — usado quando o design pede uma
+  // fileira única de canais de contato com peso visual igual (ex.: reference/index.html).
+  const whatsappAsBadge = whatsappVariant === 'badge';
 
   return (
     <div className="contact-info-block">
@@ -93,8 +100,8 @@ export function ContactInfoRenderer({ data }: BlockRendererProps<ContactInfoBloc
         </div>
       )}
 
-      {/* WhatsApp CTA */}
-      {whatsappEnabled && whatsappLink && (
+      {/* WhatsApp CTA (botão de destaque separado, quando não estiver em modo "badge") */}
+      {whatsappEnabled && whatsappLink && !whatsappAsBadge && (
         <div className="contact-info-whatsapp">
           <a
             href={fullWhatsAppHref}
@@ -108,11 +115,25 @@ export function ContactInfoRenderer({ data }: BlockRendererProps<ContactInfoBloc
         </div>
       )}
 
-      {/* Redes Sociais */}
-      {socialLinks.length > 0 && (
+      {/* Redes Sociais (+ WhatsApp, quando em modo "badge") */}
+      {(socialLinks.length > 0 || (whatsappAsBadge && whatsappEnabled && whatsappLink)) && (
         <div className="contact-info-social">
           {data.socialLinksTitle && <h3 className="contact-info-social-title">{data.socialLinksTitle}</h3>}
           <div className={`social-links-${variant}`}>
+            {whatsappAsBadge && whatsappEnabled && whatsappLink && (
+              <a
+                href={fullWhatsAppHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`social-link social-link--${variant}`}
+              >
+                <span className="social-icon"><FontAwesomeIcon icon={faWhatsapp} /></span>
+                <span className="social-link-content">
+                  <span className="social-label">WhatsApp</span>
+                  {data.whatsappLabel && <span className="social-description">{data.whatsappLabel}</span>}
+                </span>
+              </a>
+            )}
             {socialLinks.map((link: SocialLink) => {
               const icon = getIconForSocial(link.platform);
               const description = getDescriptionForSocial(link);

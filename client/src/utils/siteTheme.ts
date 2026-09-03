@@ -150,7 +150,7 @@ export function siteThemeToCssVars(themeInput?: Partial<SiteTheme> | null): Site
     '--color-burnt': primary,
     '--color-rust': shadeColor(primary, '#000000', 0.14),
     '--color-amber': accent,
-    '--brand-text-color': accent,
+    '--brand-text-color': primary,
     '--section-bg': tintColor(background, '#ffffff', 0.34),
     '--section-fg': text,
     '--section-border': hexToRgba(primary, 0.18),

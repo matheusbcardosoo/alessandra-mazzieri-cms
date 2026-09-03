@@ -45,6 +45,7 @@ const socialLinkSchema = z.object({
   id: z.string().uuid(),
   platform: z.enum(socialPlatforms),
   label: z.string().optional(),
+  description: z.string().optional(),
   url: urlSchema,
   order: z.number().int(),
   isVisible: z.boolean().default(true)
