@@ -4,7 +4,7 @@
   "description": "Template Node.js de site institucional com CMS próprio baseado em blocos (React + Express + Prisma)",
   "main": "server.js",
   "scripts": {
-    "docker:up": "docker compose up -d || echo Docker indisponivel - seguindo sem Redis (cache em memoria fica desabilitado)",
+    "docker:up": "docker compose up -d || echo Docker indisponivel - seguindo sem subir Redis local, REDIS_URL externo sera usado se configurado",
     "docker:down": "docker compose down",
     "predev": "npm run docker:up",
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
