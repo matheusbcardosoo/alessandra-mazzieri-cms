@@ -159,6 +159,26 @@ console.log('🔎 Procurando server/dist/app.js em:', serverDistPath);
 console.log('🔎 Procurando client/dist/client/index.html em:', clientDistPath);
 console.log('🔎 Procurando client/dist/server/entry-server.js em:', ssrEntryPath);
 
+// AUTO-BUILD: se o dist não veio no pacote (ZIP gerado sem rodar o build, ou
+// gerado por uma ferramenta que ignora pastas do .gitignore), builda aqui
+// mesmo. Reaproveita o script "build" da raiz (npm ci --include=dev + build
+// de client e server), pois em produção o postinstall pula a instalação de
+// devDependencies de client/server assumindo que um CI externo já buildou.
+const distMissing =
+  !fs.existsSync(serverDistPath) || !fs.existsSync(clientDistPath) || !fs.existsSync(ssrEntryPath);
+
+if (distMissing) {
+  console.log('\n⚠️  Build não encontrado. Tentando build automático (npm run build)...');
+  console.log('   Isso pode demorar alguns minutos na primeira execução.\n');
+  try {
+    execSync('npm run build', { stdio: 'inherit', cwd: __dirname });
+    console.log('\n✅ Build automático concluído!\n');
+  } catch (buildError) {
+    console.error('\n❌ Build automático falhou:', buildError.message);
+    console.error('   O servidor continuará e reportará abaixo quais arquivos ainda faltam.\n');
+  }
+}
+
 // Listar conteúdo do diretório server
 const serverDir = path.join(__dirname, 'server');
 console.log('\n📂 Conteúdo de server/:');
