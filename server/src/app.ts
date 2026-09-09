@@ -1,4 +1,5 @@
-import express from 'express';
+import { randomBytes } from 'node:crypto';
+import express, { type Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
@@ -38,12 +39,28 @@ app.use(
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
   })
 );
+
+// Gera um nonce por request para liberar os <script> inline que o SSR escreve
+// (estado hidratado do React Query e JSON-LD) sem precisar de 'unsafe-inline'.
+// server.js (produção) lê `res.locals.cspNonce` e repassa pro entry-server.tsx,
+// que usa o mesmo valor no atributo `nonce` das tags — por isso o valor tem
+// que estar pronto antes do helmet montar o header (feito aqui, antes do
+// middleware de CSP). client/dev-server.js não passa por este app (roda em
+// processo/porta separados) e não aplica CSP nenhum, então não precisa disso.
+app.use((_req, res, next) => {
+  res.locals.cspNonce = randomBytes(16).toString('base64');
+  next();
+});
+
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         ...cspDirectives,
-        'img-src': ["'self'", 'data:', 'blob:', supabaseOrigin]
+        'img-src': ["'self'", 'data:', 'blob:', supabaseOrigin],
+        'script-src': ["'self'", (_req, res) => `'nonce-${(res as Response).locals.cspNonce}'`],
+        // Origens dos embeds de vídeo do editor (RichTextEditor/extensions/videoEmbed.ts)
+        'frame-src': ["'self'", 'https://www.youtube-nocookie.com', 'https://www.tiktok.com', 'https://www.instagram.com']
       }
     }
   })

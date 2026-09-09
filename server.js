@@ -338,7 +338,9 @@ app.use(async (req, res) => {
   try {
     const render = await ssrRenderPromise;
     const origin = `${req.protocol}://${req.get('host')}`;
-    const { appHtml, headHtml, stateScript, statusCode } = await render(req.originalUrl, origin);
+    // res.locals.cspNonce vem do middleware em server/src/app.ts, que roda
+    // dentro de apiApp (montado acima) antes desta rota catch-all.
+    const { appHtml, headHtml, stateScript, statusCode } = await render(req.originalUrl, origin, res.locals.cspNonce);
 
     const html = htmlTemplate
       .replace('<!--ssr-head-->', headHtml)

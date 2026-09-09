@@ -10,6 +10,8 @@ export type SeoHeadInput = {
   extraJsonLd?: Record<string, unknown>[];
   noIndex?: boolean;
   appendSiteName?: boolean;
+  /** Nonce por request (server/src/app.ts) para casar com o CSP script-src. */
+  nonce?: string;
 };
 
 const FALLBACK_SITE_NAME = 'Meu Site';
@@ -79,7 +81,8 @@ export function buildSeoHead(input: SeoHeadInput): string {
   );
 
   if (jsonLd.length) {
-    tags.push(`<script type="application/ld+json">${escapeJsonForScript(jsonLd)}</script>`);
+    const nonceAttr = input.nonce ? ` nonce="${input.nonce}"` : '';
+    tags.push(`<script type="application/ld+json"${nonceAttr}>${escapeJsonForScript(jsonLd)}</script>`);
   }
 
   return tags.join('\n    ');

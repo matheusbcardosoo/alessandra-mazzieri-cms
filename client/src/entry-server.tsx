@@ -29,8 +29,12 @@ export type RenderResult = {
  * sempre servido como shell CSR pelo caller (ver comentário em
  * routes/PublicRoutes.tsx). Se `render` for chamado com uma URL de admin
  * por engano, devolve o mesmo shell sem tentar casar rota nenhuma.
+ *
+ * `nonce` é o valor gerado por request em `res.locals.cspNonce`
+ * (server/src/app.ts) — usado nos <script> inline abaixo para casar com o
+ * CSP `script-src` em produção. Em dev não há CSP, então vem `undefined`.
  */
-export async function render(url: string, origin: string): Promise<RenderResult> {
+export async function render(url: string, origin: string, nonce?: string): Promise<RenderResult> {
   const pathname = url.split('?')[0] || '/';
   const queryClient = getQueryClient();
 
@@ -58,11 +62,13 @@ export async function render(url: string, origin: string): Promise<RenderResult>
     siteSettings,
     extraJsonLd: seo.extraJsonLd,
     noIndex: seo.noIndex,
-    appendSiteName: seo.appendSiteName
+    appendSiteName: seo.appendSiteName,
+    nonce
   });
 
+  const nonceAttr = nonce ? ` nonce="${nonce}"` : '';
   const dehydratedState = dehydrate(queryClient);
-  const stateScript = `<script>window.__REACT_QUERY_STATE__ = ${JSON.stringify(dehydratedState).replace(
+  const stateScript = `<script${nonceAttr}>window.__REACT_QUERY_STATE__ = ${JSON.stringify(dehydratedState).replace(
     /</g,
     '\\u003c'
   )};</script>`;
